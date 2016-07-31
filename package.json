@@ -2,6 +2,14 @@
   "name": "flux-express-webpack-cart",
   "version": "0.0.0",
   "private": true,
+  "keywords": [
+    "flux",
+    "webpack",
+    "express",
+    "shopping-cart",
+    "react",
+    "boillerplate"
+  ],
   "scripts": {
     "start": "webpack --progress --colors --watch -d",
     "build": "webpack --progress --colors -p",
