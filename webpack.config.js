@@ -4,11 +4,12 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-        cart: './src/main.js'
+        Cart: './src/main.js',
+        Index: './src/index.js'
     },
     output: {
         path: './public',
-        filename: 'cart.js'
+        filename: '[name].js'
     },
     module: {
         loaders: [
