@@ -3,6 +3,7 @@
 
 var React = require('react')
 var Bs = require('react-bootstrap')
+var PollStore = require('../stores/PollStore')
 
 // Bootstrap elements
 var Navbar = Bs.Navbar,
@@ -35,33 +36,57 @@ var NavbarInstance = React.createClass({
 })
 
 // List - All Polls
-var ListOfAllPolls = React.createClass({
+var PollsList = React.createClass({
     render: function() {
+        var pollRow = []
+        this.props.polls.forEach(function(poll) {
+            pollRow.push(<ListGroupItem header={poll.title} key={poll.title}></ListGroupItem>)
+        })
         return (
             <ListGroup>
-                <ListGroupItem header="Which kind of music would you prefer?"></ListGroupItem>
-                <ListGroupItem header="Which one of these is your favorite?"></ListGroupItem>
+                {pollRow}
             </ListGroup>
         )
     }
 })
 
+// get data from store
+function getState() {
+    return {
+        polls: PollStore.getPolls()     // TODO - call PollStore-getPoll here
+    }
+}
 
 // Jumbotron content
 var Container = React.createClass({
+    // state - keep it here
+    getInitialState: function() {
+        return getState()
+    },
+    componentDidMount: function() {
+        PollStore.addChangeListener(this._onChange)
+    },
+
+    componentWillUnmount: function() {
+        PollStore.removeChangeListener(this._onChange)
+    },
+
+    // render it
     render: function() {
         return (
             <Jumbotron>
                 <h2> All Polls </h2>
                 <br />
-                <ListOfAllPolls />
+                <PollsList polls={this.state.polls} />
             </Jumbotron>
         )
+    },
+    _onChange: function() {
+        this.setState(getState())
     }
 })
 
 // content
-
 var Content = React.createClass({
     render: function() {
         return (
