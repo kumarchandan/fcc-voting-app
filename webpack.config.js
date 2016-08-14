@@ -3,9 +3,12 @@
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './src/main.js',
+    entry: {
+        cart: './src/main.js'
+    },
     output: {
-        filename: './public/main.bundle.js'
+        path: './public',
+        filename: 'cart.js'
     },
     module: {
         loaders: [
