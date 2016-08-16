@@ -9,12 +9,11 @@ var PollStore = require('../stores/PollStore')
 var Navbar = Bs.Navbar,
     Nav = Bs.Nav,
     NavItem = Bs.NavItem
-
 var Jumbotron = Bs.Jumbotron
-
 var ListGroup = Bs.ListGroup,
     ListGroupItem = Bs.ListGroupItem
 
+// React components
 // Navigation bar
 var NavbarInstance = React.createClass({
     render: function() {
@@ -28,7 +27,7 @@ var NavbarInstance = React.createClass({
                 <Nav pullRight>
                     <NavItem eventKey={1} href="#">Home</NavItem>
                     <NavItem eventKey={2} href="#">Sign in</NavItem>
-                    <NavItem eventKey={3} href="#">Sign in with Twitter</NavItem>
+                    <NavItem eventKey={3} href="/auth/twitter">Sign in with Twitter</NavItem>
                 </Nav>
             </Navbar>
         )

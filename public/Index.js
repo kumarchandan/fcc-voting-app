@@ -23849,12 +23849,11 @@
 	var Navbar = Bs.Navbar,
 	    Nav = Bs.Nav,
 	    NavItem = Bs.NavItem;
-	
 	var Jumbotron = Bs.Jumbotron;
-	
 	var ListGroup = Bs.ListGroup,
 	    ListGroupItem = Bs.ListGroupItem;
 	
+	// React components
 	// Navigation bar
 	var NavbarInstance = React.createClass({
 	    displayName: 'NavbarInstance',
@@ -23891,7 +23890,7 @@
 	                ),
 	                React.createElement(
 	                    NavItem,
-	                    { eventKey: 3, href: '#' },
+	                    { eventKey: 3, href: '/auth/twitter' },
 	                    'Sign in with Twitter'
 	                )
 	            )
@@ -43551,10 +43550,10 @@
 	var EventEmitter = __webpack_require__(/*! events */ 182).EventEmitter;
 	var _ = __webpack_require__(/*! underscore */ 183);
 	
-	// define initial data
+	// Initial data
 	var _polls = [];
 	
-	// Load data for first time
+	// Fill _polls when data comes/changes
 	function loadPolls(data) {
 	    _polls = data;
 	}
@@ -43566,13 +43565,13 @@
 	        return _polls;
 	    },
 	    emitChange: function emitChange() {
-	        this.emit('change');
+	        this.emit('dataChanged');
 	    },
 	    addChangeListener: function addChangeListener(callback) {
-	        this.on('change', callback);
+	        this.on('dataChanged', callback);
 	    },
 	    removeChangeListener: function removeChangeListener(callback) {
-	        this.removeListener('change', callback);
+	        this.removeListener('dataChanged', callback);
 	    }
 	});
 	
@@ -43583,7 +43582,7 @@
 	    switch (action.actionType) {
 	        case PollConstants.GET_POLLS:
 	            loadPolls(action.data);
-	            PollStore.emitChange();
+	            PollStore.emitChange(); // emit change as data changed
 	            break;
 	
 	        default:
@@ -43623,7 +43622,7 @@
 	// PollAPI.js
 	
 	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 444);
-	var request = __webpack_require__(/*! superagent */ 445);
+	var request = __webpack_require__(/*! superagent */ 445); // just as $.ajax() but lightweight and progressive
 	
 	// Utility to load data first time
 	module.exports = {

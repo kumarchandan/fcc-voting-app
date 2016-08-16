@@ -1,7 +1,7 @@
 // PollAPI.js
 
 var PollActions = require('../actions/PollActions')
-var request = require('superagent')
+var request = require('superagent')             // just as $.ajax() but lightweight and progressive
 
 // Utility to load data first time
 module.exports = {

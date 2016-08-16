@@ -1,10 +1,66 @@
+// app.js
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var passport = require('passport')
+var Strategy = require('passport-twitter').Strategy
+var session = require('express-session')
+var twitAuth = require('./config/auth').twitterAuth
 
+// database stuff
+var mongoURL = require('./config/database').mongoURL
+var mongoose = require('mongoose')
+mongoose.connect(mongoURL)
+var User = require('./models/user')
+
+
+// Configure the twitte Strategy for use by passport
+passport.use(new Strategy({
+  consumerKey: twitAuth.consumerKey,
+  consumerSecret: twitAuth.consumerSecret,
+  callbackURL: twitAuth.callbackURL
+},
+function(token, tokenSecret, profile, done) {
+  process.nextTick(function() {
+    User.findOne({ 'username' : profile.username }, function(err, user) {
+      if(err) {
+        return done(err)
+      }
+      if(user) {
+        return done(null, user)   // user found, return that user
+      } else {
+        // no user found, so create new one
+        var newUser = new User()
+        newUser.username = profile.username
+        newUser.displayName = profile.displayName
+        newUser.password = 'twitter'
+        newUser.email = ''
+        // save new user into database
+        newUser.save(function(err, res) {
+          if(err) throw err
+          return done(null, newUser)
+        })
+      }
+    })
+  })
+  
+}))
+
+// Configure passport authenticated persistence
+passport.serializeUser(function(user, done) {
+  done(null, user)
+})
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj)
+})
+
+
+// routes
 var routes = require('./routes/index');
 var cart = require('./routes/cart');
 var api = require('./routes/api');
@@ -15,17 +71,32 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
+// middleware used
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'arduino123',
+  resave: true,
+  saveUninitialized: true
+}))
+// Initialize passport and restore authentication state, if any, from session
+app.use(passport.initialize())
+app.use(passport.session())     // equivalent to => app.use(passport.authenticate('session'));
 
+
+
+// routes path
 app.use('/', routes);
 app.use('/cart', cart);
 app.use('/api', api);
+
+app.get('/auth/twitter', passport.authenticate('twitter'))   // route middleware to authenticate requests
+
+app.get('/auth/twitter/callback', passport.authenticate('twitter', { failureRedirect: '/cart', successRedirect: '/' }))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

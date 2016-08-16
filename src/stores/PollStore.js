@@ -6,10 +6,10 @@ var EventEmitter = require('events').EventEmitter
 var _ = require('underscore')
 
 
-// define initial data
+// Initial data
 var _polls = []
 
-// Load data for first time
+// Fill _polls when data comes/changes
 function loadPolls(data) {
     _polls = data
 }
@@ -21,13 +21,13 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
         return _polls
     },
     emitChange: function() {
-        this.emit('change')
+        this.emit('dataChanged')
     },
     addChangeListener: function(callback) {
-        this.on('change', callback)
+        this.on('dataChanged', callback)
     },
     removeChangeListener: function(callback) {
-        this.removeListener('change', callback)
+        this.removeListener('dataChanged', callback)
     }
 })
 
@@ -38,7 +38,7 @@ AppDispatcher.register(function(payload) {
     switch (action.actionType) {
         case PollConstants.GET_POLLS:
             loadPolls(action.data)
-            PollStore.emitChange()
+            PollStore.emitChange()      // emit change as data changed
             break;
     
         default:

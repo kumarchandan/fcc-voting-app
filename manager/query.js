@@ -1,34 +1,22 @@
-// query.js
+// manager/query.js
 
-var url = require('../config/database')
-var mongo = require('mongodb').MongoClient
+var mongoURL = require('../config/database').mongoURL
+var mongoose = require('mongoose')
+var Poll = require('../models/poll')
+var ObjectID = require('mongodb').ObjectID
 
-var db_url = url.mongo_url
-
-// get all polls from db
+// get polls - middleware function
 function getPolls(req, res, next) {
-    // connect to db
-    mongo.connect(db_url, function(err, db) {
+    Poll.find(function(err, polls) {
         if(err) throw err
-
-        try {
-            db.collection('polls').find().toArray(function(err, doc) {
-                if(err) throw err
-                if(doc.length !== 0) {
-                    console.log(doc)
-                    res.status(200).json({
-                        data: doc
-                    })
-                } else {
-                    res.status(200).json({
-                        msg: 'no data found in db'
-                    })
-                }
+        if(polls.length !== 0) {
+            res.status(200).json({
+                data: polls
             })
-        } catch (error) {
-            throw error
-        } finally {
-            db.close()
+        } else {
+            res.status(200).json({
+                data: null
+            })
         }
         
     })
