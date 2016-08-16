@@ -4,7 +4,6 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-        Cart: './src/main.js',
         Index: './src/index.js'
     },
     output: {

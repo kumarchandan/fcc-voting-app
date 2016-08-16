@@ -62,7 +62,6 @@ passport.deserializeUser(function(obj, done) {
 
 // routes
 var routes = require('./routes/index');
-var cart = require('./routes/cart');
 var api = require('./routes/api');
 
 var app = express();
@@ -91,12 +90,11 @@ app.use(passport.session())     // equivalent to => app.use(passport.authenticat
 
 // routes path
 app.use('/', routes);
-app.use('/cart', cart);
 app.use('/api', api);
 
 app.get('/auth/twitter', passport.authenticate('twitter'))   // route middleware to authenticate requests
 
-app.get('/auth/twitter/callback', passport.authenticate('twitter', { failureRedirect: '/cart', successRedirect: '/' }))
+app.get('/auth/twitter/callback', passport.authenticate('twitter', { failureRedirect: '/error', successRedirect: '/' }))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
