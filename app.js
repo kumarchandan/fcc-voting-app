@@ -92,6 +92,11 @@ app.use(passport.session())     // equivalent to => app.use(passport.authenticat
 app.use('/', routes);
 app.use('/api', api);
 
+// error page
+app.use('/error', function(req, res, next) {
+  res.render('error')
+})
+
 app.get('/auth/twitter', passport.authenticate('twitter'))   // route middleware to authenticate requests
 
 app.get('/auth/twitter/callback', passport.authenticate('twitter', { failureRedirect: '/error', successRedirect: '/' }))
