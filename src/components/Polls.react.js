@@ -14,8 +14,9 @@ var Jumbotron = Bs.Jumbotron
 var List = React.createClass({
     render: function() {
         var pollRow = []
+        var counter = 1001
         this.props.polls.forEach(function(poll) {
-            pollRow.push(<ListGroupItem header={poll.title} key={poll.title}></ListGroupItem>)
+            pollRow.push(<ListGroupItem header={poll.title} key={counter++}></ListGroupItem>)
         })
         // return
         return (

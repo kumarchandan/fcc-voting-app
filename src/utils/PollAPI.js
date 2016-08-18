@@ -13,5 +13,13 @@ module.exports = {
             //
             PollActions.getPolls(res.body.data)
         })
+    },
+    //
+    createPoll: function(poll) {
+        request.post('api/create').send(poll).set('Accept', 'application/json').end(function(err, res) {
+            if(err) throw err
+            //
+            PollActions.createPoll(res.body.data)
+        })
     }
 }

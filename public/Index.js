@@ -27536,9 +27536,13 @@
 	                        )
 	                    ),
 	                    React.createElement(
-	                        _reactBootstrap.NavItem,
-	                        { eventKey: 4 },
-	                        this.state.loggedIn.displayName
+	                        _reactBootstrap.NavDropdown,
+	                        { eventKey: 4, title: this.state.loggedIn.displayName, id: 'basic-nav-dropdown' },
+	                        React.createElement(
+	                            _reactBootstrap.MenuItem,
+	                            { eventKey: 4.1, href: '/logout' },
+	                            'Logout'
+	                        )
 	                    )
 	                ) : React.createElement(
 	                    _reactBootstrap.Nav,
@@ -47238,8 +47242,9 @@
 	
 	    render: function render() {
 	        var pollRow = [];
+	        var counter = 1001;
 	        this.props.polls.forEach(function (poll) {
-	            pollRow.push(React.createElement(ListGroupItem, { header: poll.title, key: poll.title }));
+	            pollRow.push(React.createElement(ListGroupItem, { header: poll.title, key: counter++ }));
 	        });
 	        // return
 	        return React.createElement(
@@ -47318,6 +47323,10 @@
 	function loadPolls(data) {
 	    _polls = data;
 	}
+	//
+	function createPoll(data) {
+	    _polls.push(data);
+	}
 	
 	// PollStore Instance
 	// Extend with EventEmitter.prototype to add event capabilities
@@ -47338,12 +47347,17 @@
 	
 	// register callback with dispatcher
 	AppDispatcher.register(function (payload) {
+	    //
 	    var action = payload.action;
-	
+	    //
 	    switch (action.actionType) {
 	        case PollConstants.GET_POLLS:
 	            loadPolls(action.data);
 	            PollStore.emitChange(); // emit change as data changed
+	            break;
+	        case PollConstants.CREATE_POLL:
+	            createPoll(action.data);
+	            PollStore.emitChange();
 	            break;
 	        default:
 	            return true;
@@ -47712,7 +47726,8 @@
 	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 24);
 	
 	module.exports = keyMirror({
-	    GET_POLLS: null
+	    GET_POLLS: null,
+	    CREATE_POLL: null
 	});
 
 /***/ },
@@ -49592,18 +49607,68 @@
 
 	'use strict';
 	
+	var _reactRouter = __webpack_require__(/*! react-router */ 1);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
 	// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
+	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 502);
 	
+	// Bootstrap elements
+	
+	
+	// Styles
+	var taStyle = {
+	    width: '500px',
+	    height: '169px'
+	};
+	var inpStyle = {
+	    width: '500px'
+	};
+	
+	//
 	var NewPoll = React.createClass({
 	    displayName: 'NewPoll',
 	
+	    //
+	    createPoll: function createPoll() {
+	        var title = document.getElementById('newTitle').value;
+	        var options = document.getElementById('newOptions').value.split(',');
+	        console.log(title, options);
+	        var poll = {
+	            title: title,
+	            options: options
+	        };
+	        PollAPI.createPoll(poll);
+	    },
 	    render: function render() {
+	        //
 	        return React.createElement(
-	            'h3',
+	            _reactBootstrap.Jumbotron,
 	            null,
-	            'New Poll'
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Create New Poll'
+	            ),
+	            React.createElement('br', null),
+	            React.createElement(
+	                'form',
+	                null,
+	                React.createElement('input', { id: 'newTitle', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
+	                React.createElement('br', null),
+	                React.createElement('br', null),
+	                React.createElement('textarea', { id: 'newOptions', style: taStyle }),
+	                React.createElement('br', null),
+	                React.createElement('br', null),
+	                React.createElement(
+	                    _reactBootstrap.Button,
+	                    { bsStyle: 'success', onClick: this.createPoll },
+	                    'Submit'
+	                )
+	            )
 	        );
 	    }
 	});
@@ -49698,6 +49763,14 @@
 	            //
 	            PollActions.getPolls(res.body.data);
 	        });
+	    },
+	    //
+	    createPoll: function createPoll(poll) {
+	        request.post('api/create').send(poll).set('Accept', 'application/json').end(function (err, res) {
+	            if (err) throw err;
+	            //
+	            PollActions.createPoll(res.body.data);
+	        });
 	    }
 	};
 
@@ -49716,10 +49789,18 @@
 	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 496);
 	
 	var PollActions = {
+	    // Get Polls
 	    getPolls: function getPolls(data) {
 	        AppDispatcher.handleAction({
 	            actionType: PollConstants.GET_POLLS,
 	            data: data
+	        });
+	    },
+	    // Create Poll
+	    createPoll: function createPoll(newPoll) {
+	        AppDispatcher.handleAction({
+	            actionType: PollConstants.CREATE_POLL,
+	            data: newPoll
 	        });
 	    }
 	};

@@ -22,6 +22,40 @@ function getPolls(req, res, next) {
     })
 }
 
+// Create Poll
+function createPoll(req, res, next) {
+    //
+    var newPoll = new Poll()
+    if(!req.user._id) {
+        res.status(200).json({
+            data: 'Not a valid user'
+        })
+    }
+    //
+    var options = req.body.options
+    var optionsObj = options.map(function(option) {
+        return {
+            text: option,
+            vote: 0
+        }
+    })
+
+    newPoll.title = req.body.title
+    newPoll.options = optionsObj
+
+    newPoll.ownerUserid = req.user._id
+    //
+    newPoll.save(function(err, poll, numAffected) {
+        if(err) throw err
+        //
+        console.log('Poll Created', poll, numAffected)
+        res.status(200).json({
+            data: newPoll
+        })
+    })
+}
+
 module.exports = {
-    getPolls: getPolls
+    getPolls: getPolls,
+    createPoll: createPoll
 }

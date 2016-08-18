@@ -2,7 +2,7 @@
 
 var React = require('react')
 
-import { Nav, Navbar, NavItem, NavDropDown, MenuItem, Button } from 'react-bootstrap'
+import { Nav, Navbar, NavItem, NavDropdown, MenuItem, Button } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 
 var AuthStore = require('../stores/AuthStore')
@@ -55,7 +55,9 @@ var NavigationBar = React.createClass({
                             <LinkContainer to='/newpoll'>
                                 <NavItem eventKey={3}>New Poll</NavItem>
                             </LinkContainer>
-                            <NavItem eventKey={4}>{this.state.loggedIn.displayName}</NavItem>
+                            <NavDropdown eventKey={4} title={this.state.loggedIn.displayName} id='basic-nav-dropdown'>
+                                <MenuItem eventKey={4.1} href='/logout'>Logout</MenuItem>
+                            </NavDropdown>
                         </Nav>
                         :
                         <Nav pullRight>

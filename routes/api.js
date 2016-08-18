@@ -7,6 +7,7 @@ var checkAuth = require('../manager/checkAuth')
 
 // db query api
 router.get('/polls', query.getPolls)
+router.post('/create', query.createPoll)
 
 // check auth
 router.get('/auth', checkAuth.isAuthenticated)

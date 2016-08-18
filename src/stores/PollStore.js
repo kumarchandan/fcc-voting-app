@@ -13,6 +13,10 @@ var _polls = []
 function loadPolls(data) {
     _polls = data
 }
+//
+function createPoll(data) {
+    _polls.push(data)
+}
 
 // PollStore Instance
 // Extend with EventEmitter.prototype to add event capabilities
@@ -33,13 +37,18 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
 
 // register callback with dispatcher
 AppDispatcher.register(function(payload) {
+    //
     var action = payload.action
-
+    //
     switch (action.actionType) {
         case PollConstants.GET_POLLS:
             loadPolls(action.data)
             PollStore.emitChange()      // emit change as data changed
-            break;
+            break
+        case PollConstants.CREATE_POLL:
+            createPoll(action.data)
+            PollStore.emitChange()
+            break
         default:
             return true
     }
