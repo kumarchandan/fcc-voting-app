@@ -1,4 +1,4 @@
-// NewPoll.react.js : Authenticated User can Create New Poll
+// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
 
 var React = require('react')
 

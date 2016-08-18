@@ -1,4 +1,4 @@
-// MyPolls.react.js : List of Polls of Authenticated User
+// MyPolls.react.js : List of Polls - Access Authenticated User Only
 
 var React = require('react')
 

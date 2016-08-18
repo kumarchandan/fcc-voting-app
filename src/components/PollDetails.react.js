@@ -1,4 +1,4 @@
-// PollDetails.react.js : Details - Results of a single Poll
+// PollDetails.react.js : Details and Results of a single Poll - Access All
 
 var React = require('react')
 

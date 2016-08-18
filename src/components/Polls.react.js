@@ -1,4 +1,4 @@
-// Polls.react.js : list polls [Home page]
+// Polls.react.js : List of All Polls - Access All
 
 var React = require('react')
 var Bs = require('react-bootstrap')

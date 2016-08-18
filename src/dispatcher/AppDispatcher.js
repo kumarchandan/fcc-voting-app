@@ -9,7 +9,7 @@ var AppDispatcher = new Dispatcher();
 AppDispatcher.handleAction = function(action) {
 	var payload = {
 		source: 'VIEW_ACTION',
-		action: action			// actionType, data
+		action: action			// { actionType, data }
 	};
 
 	this.dispatch(payload);

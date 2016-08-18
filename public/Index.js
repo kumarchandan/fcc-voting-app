@@ -62,15 +62,19 @@
 	var MyPolls = __webpack_require__(/*! ./components/MyPolls.react */ 500);
 	var PollDetails = __webpack_require__(/*! ./components/PollDetails.react */ 501);
 	
+	// Utilities
 	var PollAPI = __webpack_require__(/*! ./utils/PollAPI */ 502);
+	var AuthAPI = __webpack_require__(/*! ./utils/AuthAPI */ 511);
 	
 	// Load data
 	PollAPI.getPolls();
+	// Check Session If User is Logged in
+	AuthAPI.isAuthenticated();
 	
 	// Home Page
 	ReactDOM.render(React.createElement(
 	    _reactRouter.Router,
-	    { history: _reactRouter.browserHistory },
+	    { history: _reactRouter.hashHistory },
 	    React.createElement(
 	        _reactRouter.Route,
 	        { path: '/', component: IndexPage },
@@ -27450,10 +27454,37 @@
 	
 	var React = __webpack_require__(/*! react */ 3);
 	
+	var AuthStore = __webpack_require__(/*! ../stores/AuthStore */ 512);
+	
+	// changes
+	function getState() {
+	    return {
+	        loggedIn: AuthStore.getAuthData()
+	    };
+	}
+	
 	// Navigation bar
 	var NavigationBar = React.createClass({
 	    displayName: 'NavigationBar',
 	
+	
+	    //
+	    _onChange: function _onChange() {
+	        this.setState(getState());
+	    },
+	    //
+	    getInitialState: function getInitialState() {
+	        return getState();
+	    },
+	    //
+	    componentDidMount: function componentDidMount() {
+	        AuthStore.addChangeListener(this._onChange);
+	    },
+	    //
+	    componentWillUnmount: function componentWillUnmount() {
+	        AuthStore.removeChangeListener(this._onChange);
+	    },
+	    // render
 	    render: function render() {
 	        return React.createElement(
 	            'div',
@@ -27474,7 +27505,7 @@
 	                        )
 	                    )
 	                ),
-	                React.createElement(
+	                this.state.loggedIn ? React.createElement(
 	                    _reactBootstrap.Nav,
 	                    { pullRight: true },
 	                    React.createElement(
@@ -27503,6 +27534,28 @@
 	                            { eventKey: 3 },
 	                            'New Poll'
 	                        )
+	                    ),
+	                    React.createElement(
+	                        _reactBootstrap.NavItem,
+	                        { eventKey: 4 },
+	                        this.state.loggedIn.displayName
+	                    )
+	                ) : React.createElement(
+	                    _reactBootstrap.Nav,
+	                    { pullRight: true },
+	                    React.createElement(
+	                        _reactRouterBootstrap.LinkContainer,
+	                        { to: '/polls' },
+	                        React.createElement(
+	                            _reactBootstrap.NavItem,
+	                            { eventKey: 1 },
+	                            'Home'
+	                        )
+	                    ),
+	                    React.createElement(
+	                        _reactBootstrap.NavItem,
+	                        { eventKey: 2, href: '/auth/twitter' },
+	                        'Sign in with Twitter'
 	                    )
 	                )
 	            ),
@@ -47167,7 +47220,7 @@
 
 	'use strict';
 	
-	// Polls.react.js : list polls [Home page]
+	// Polls.react.js : List of All Polls - Access All
 	
 	var React = __webpack_require__(/*! react */ 3);
 	var Bs = __webpack_require__(/*! react-bootstrap */ 236);
@@ -47273,13 +47326,13 @@
 	        return _polls;
 	    },
 	    emitChange: function emitChange() {
-	        this.emit('dataChanged');
+	        this.emit('pollChanged');
 	    },
 	    addChangeListener: function addChangeListener(callback) {
-	        this.on('dataChanged', callback);
+	        this.on('pollChanged', callback);
 	    },
 	    removeChangeListener: function removeChangeListener(callback) {
-	        this.removeListener('dataChanged', callback);
+	        this.removeListener('pollChanged', callback);
 	    }
 	});
 	
@@ -47292,7 +47345,6 @@
 	            loadPolls(action.data);
 	            PollStore.emitChange(); // emit change as data changed
 	            break;
-	
 	        default:
 	            return true;
 	    }
@@ -47321,7 +47373,7 @@
 	AppDispatcher.handleAction = function (action) {
 		var payload = {
 			source: 'VIEW_ACTION',
-			action: action // actionType, data
+			action: action // { actionType, data }
 		};
 	
 		this.dispatch(payload);
@@ -49540,7 +49592,7 @@
 
 	'use strict';
 	
-	// NewPoll.react.js : Authenticated User can Create New Poll
+	// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
 	
@@ -49567,7 +49619,7 @@
 
 	'use strict';
 	
-	// MyPolls.react.js : List of Polls of Authenticated User
+	// MyPolls.react.js : List of Polls - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
 	
@@ -49594,7 +49646,7 @@
 
 	'use strict';
 	
-	// PollDetails.react.js : Details - Results of a single Poll
+	// PollDetails.react.js : Details and Results of a single Poll - Access All
 	
 	var React = __webpack_require__(/*! react */ 3);
 	
@@ -49634,15 +49686,16 @@
 	// PollAPI.js
 	
 	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 503);
-	var request = __webpack_require__(/*! superagent */ 504); // just as $.ajax() but lightweight and progressive
+	var request = __webpack_require__(/*! superagent */ 504);
 	
 	// Utility to load data first time
 	module.exports = {
-	    // get data from db and call the action to initialize store
+	    //
 	    getPolls: function getPolls() {
 	        request.get('api/polls').end(function (err, res) {
 	            if (err) throw err;
-	            console.log(res.body.data);
+	            console.log('getPolls ', res.body.data);
+	            //
 	            PollActions.getPolls(res.body.data);
 	        });
 	    }
@@ -51248,6 +51301,140 @@
 	
 	module.exports = request;
 
+
+/***/ },
+/* 509 */
+/*!************************************!*\
+  !*** ./src/actions/AuthActions.js ***!
+  \************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// AuthActions.js
+	
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
+	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 510);
+	
+	// Flux Story :)
+	// Action gets the payload(data) and hand it over to Dispatcher
+	// Then Dispatcher takes the payload and dispatches to all the callbacks which are registered in Stores across application
+	// And then Store emits the event about the data changes, so finally the React Views re-renders the data
+	
+	var AuthActions = {
+	    //
+	    isAuthenticated: function isAuthenticated(data) {
+	        AppDispatcher.handleAction({
+	            actionType: AuthConstants.IS_AUTHENTICATED,
+	            data: data
+	        });
+	    }
+	};
+	
+	module.exports = AuthActions;
+
+/***/ },
+/* 510 */
+/*!****************************************!*\
+  !*** ./src/constants/AuthConstants.js ***!
+  \****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// AuthConstants.js
+	
+	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 24);
+	
+	module.exports = keyMirror({
+	    IS_AUTHENTICATED: null
+	});
+
+/***/ },
+/* 511 */
+/*!******************************!*\
+  !*** ./src/utils/AuthAPI.js ***!
+  \******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// utils/AuthAPI.js
+	var request = __webpack_require__(/*! superagent */ 504);
+	var AuthActions = __webpack_require__(/*! ../actions/AuthActions */ 509);
+	
+	module.exports = {
+	    //
+	    isAuthenticated: function isAuthenticated() {
+	        request.get('api/auth').end(function (err, res) {
+	            if (err) throw err;
+	            console.log('isAuthenticated ', res.body.data);
+	            //
+	            AuthActions.isAuthenticated(res.body.data);
+	        });
+	    }
+	};
+
+/***/ },
+/* 512 */
+/*!*********************************!*\
+  !*** ./src/stores/AuthStore.js ***!
+  \*********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// AuthStore.js
+	
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
+	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 510);
+	var EventEmitter = __webpack_require__(/*! events */ 497).EventEmitter;
+	var _ = __webpack_require__(/*! underscore */ 498);
+	
+	// private data
+	var _profile = null;
+	
+	// helper functions
+	function loadProfile(data) {
+	    _profile = data;
+	}
+	
+	// events - underscore
+	var AuthStore = _.extend({}, EventEmitter.prototype, {
+	    //
+	    getAuthData: function getAuthData() {
+	        return _profile;
+	    },
+	    //
+	    emitChange: function emitChange() {
+	        this.emit('dataChanges');
+	    },
+	    //
+	    addChangeListener: function addChangeListener(done) {
+	        this.addListener('dataChanges', done);
+	    },
+	    //
+	    removeChangeListener: function removeChangeListener(done) {
+	        this.removeListener('dataChanges', done);
+	    }
+	});
+	
+	// Register AuthStore's Callback to Dispatcher : To receive payload
+	AppDispatcher.register(function (payload) {
+	    var action = payload.action;
+	    //
+	    switch (action.actionType) {
+	        case AuthConstants.IS_AUTHENTICATED:
+	            loadProfile(action.data);
+	            AuthStore.emitChange();
+	            break;
+	        default:
+	            return true;
+	    }
+	    return true;
+	});
+	
+	module.exports = AuthStore;
 
 /***/ }
 /******/ ]);

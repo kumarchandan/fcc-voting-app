@@ -21,13 +21,13 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
         return _polls
     },
     emitChange: function() {
-        this.emit('dataChanged')
+        this.emit('pollChanged')
     },
     addChangeListener: function(callback) {
-        this.on('dataChanged', callback)
+        this.on('pollChanged', callback)
     },
     removeChangeListener: function(callback) {
-        this.removeListener('dataChanged', callback)
+        this.removeListener('pollChanged', callback)
     }
 })
 
@@ -40,7 +40,6 @@ AppDispatcher.register(function(payload) {
             loadPolls(action.data)
             PollStore.emitChange()      // emit change as data changed
             break;
-    
         default:
             return true
     }
