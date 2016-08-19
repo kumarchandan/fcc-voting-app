@@ -5,10 +5,10 @@ var PollConstants = require('../constants/PollConstants')
 
 var PollActions = {
     // Get Polls
-    getPolls: function(data) {
+    getPolls: function(polls) {
         AppDispatcher.handleAction({
             actionType: PollConstants.GET_POLLS,
-            data: data
+            data: polls
         })
     },
     // Create Poll
@@ -16,6 +16,13 @@ var PollActions = {
         AppDispatcher.handleAction({
             actionType: PollConstants.CREATE_POLL,
             data: newPoll
+        })
+    },
+    // Get My Polls
+    getMyPolls: function(myPolls) {
+        AppDispatcher.handleAction({
+            actionType: PollConstants.GET_MY_POLLS,
+            data: myPolls
         })
     }
 }

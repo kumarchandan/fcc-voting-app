@@ -47224,34 +47224,37 @@
 
 	'use strict';
 	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
 	// Polls.react.js : List of All Polls - Access All
 	
 	var React = __webpack_require__(/*! react */ 3);
-	var Bs = __webpack_require__(/*! react-bootstrap */ 236);
-	
 	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 491);
 	
 	// Bootstrap elements
-	var ListGroup = Bs.ListGroup;
-	var ListGroupItem = Bs.ListGroupItem;
-	var Jumbotron = Bs.Jumbotron;
+	
 	
 	// List - All Polls
 	var List = React.createClass({
 	    displayName: 'List',
 	
+	    //
 	    render: function render() {
 	        var pollRow = [];
 	        var counter = 1001;
-	        this.props.polls.forEach(function (poll) {
-	            pollRow.push(React.createElement(ListGroupItem, { header: poll.title, key: counter++ }));
-	        });
-	        // return
-	        return React.createElement(
-	            ListGroup,
-	            null,
-	            pollRow
-	        );
+	        if (this.props.polls && this.props.polls.length !== 0) {
+	            this.props.polls.forEach(function (poll) {
+	                pollRow.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: counter++ }));
+	            });
+	            //
+	            return React.createElement(
+	                _reactBootstrap.ListGroup,
+	                null,
+	                pollRow
+	            );
+	        } else {
+	            return null;
+	        }
 	    }
 	});
 	
@@ -47285,7 +47288,7 @@
 	    // render
 	    render: function render() {
 	        return React.createElement(
-	            Jumbotron,
+	            _reactBootstrap.Jumbotron,
 	            null,
 	            React.createElement(
 	                'h2',
@@ -47313,33 +47316,50 @@
 	
 	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
 	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 496);
+	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 502);
 	var EventEmitter = __webpack_require__(/*! events */ 497).EventEmitter;
 	var _ = __webpack_require__(/*! underscore */ 498);
 	
-	// Initial data
+	// Private data
 	var _polls = [];
+	var _myPolls = [];
 	
-	// Fill _polls when data comes/changes
+	// All Polls
 	function loadPolls(data) {
 	    _polls = data;
 	}
-	//
-	function createPoll(data) {
+	// Add New Poll
+	function addPoll(data) {
 	    _polls.push(data);
+	}
+	// User specific polls
+	function loadMyPolls(data) {
+	    _myPolls = data;
 	}
 	
 	// PollStore Instance
 	// Extend with EventEmitter.prototype to add event capabilities
 	var PollStore = _.extend({}, EventEmitter.prototype, {
+	    //
 	    getPolls: function getPolls() {
 	        return _polls;
 	    },
+	    //
+	    getMyPolls: function getMyPolls() {
+	        if (_myPolls && _myPolls.length === 0) {
+	            PollAPI.getMyPolls();
+	        }
+	        return _myPolls;
+	    },
+	    //
 	    emitChange: function emitChange() {
 	        this.emit('pollChanged');
 	    },
+	    //
 	    addChangeListener: function addChangeListener(callback) {
 	        this.on('pollChanged', callback);
 	    },
+	    //
 	    removeChangeListener: function removeChangeListener(callback) {
 	        this.removeListener('pollChanged', callback);
 	    }
@@ -47352,11 +47372,15 @@
 	    //
 	    switch (action.actionType) {
 	        case PollConstants.GET_POLLS:
-	            loadPolls(action.data);
-	            PollStore.emitChange(); // emit change as data changed
+	            loadPolls(action.data); // loadPolls
+	            PollStore.emitChange();
 	            break;
 	        case PollConstants.CREATE_POLL:
-	            createPoll(action.data);
+	            addPoll(action.data); // addPoll
+	            PollStore.emitChange();
+	            break;
+	        case PollConstants.GET_MY_POLLS:
+	            loadMyPolls(action.data); // loadMyPolls
 	            PollStore.emitChange();
 	            break;
 	        default:
@@ -47727,7 +47751,8 @@
 	
 	module.exports = keyMirror({
 	    GET_POLLS: null,
-	    CREATE_POLL: null
+	    CREATE_POLL: null,
+	    GET_MY_POLLS: null
 	});
 
 /***/ },
@@ -49634,14 +49659,17 @@
 	
 	    //
 	    createPoll: function createPoll() {
-	        var title = document.getElementById('newTitle').value;
-	        var options = document.getElementById('newOptions').value.split(',');
+	        //
+	        var title = this.refs.title.value;
+	        var options = this.refs.options.value.split(',');
 	        console.log(title, options);
 	        var poll = {
 	            title: title,
 	            options: options
 	        };
 	        PollAPI.createPoll(poll);
+	        // Navigate to Home
+	        this.props.history.push('/');
 	    },
 	    render: function render() {
 	        //
@@ -49657,10 +49685,10 @@
 	            React.createElement(
 	                'form',
 	                null,
-	                React.createElement('input', { id: 'newTitle', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
+	                React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
 	                React.createElement('br', null),
 	                React.createElement('br', null),
-	                React.createElement('textarea', { id: 'newOptions', style: taStyle }),
+	                React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle }),
 	                React.createElement('br', null),
 	                React.createElement('br', null),
 	                React.createElement(
@@ -49684,18 +49712,77 @@
 
 	'use strict';
 	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
 	// MyPolls.react.js : List of Polls - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
+	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 491);
 	
+	// Bootstrap elements
+	
+	
+	//
+	var List = React.createClass({
+	    displayName: 'List',
+	
+	    //
+	    render: function render() {
+	        var row = [];
+	        var counter = 4567;
+	        if (this.props.myPolls && this.props.myPolls.length !== 0) {
+	            this.props.myPolls.forEach(function (poll) {
+	                row.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: counter++ }));
+	            });
+	            return React.createElement(
+	                _reactBootstrap.ListGroup,
+	                null,
+	                row
+	            );
+	        } else {
+	            return null;
+	        }
+	    }
+	});
+	
+	//
+	function getMyPolls() {
+	    return {
+	        myPolls: PollStore.getMyPolls()
+	    };
+	}
+	// 
 	var MyPolls = React.createClass({
 	    displayName: 'MyPolls',
 	
+	    //
+	    _onChange: function _onChange() {
+	        this.setState(getMyPolls());
+	    },
+	    //
+	    getInitialState: function getInitialState() {
+	        return getMyPolls();
+	    },
+	    //
+	    componentWillMount: function componentWillMount() {
+	        PollStore.addChangeListener(this._onChange);
+	    },
+	    //
+	    componentWillUnmount: function componentWillUnmount() {
+	        PollStore.removeChangeListener(this._onChange);
+	    },
+	    //
 	    render: function render() {
 	        return React.createElement(
-	            'h3',
+	            _reactBootstrap.Jumbotron,
 	            null,
-	            'My Polls'
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Your Polls'
+	            ),
+	            React.createElement('br', null),
+	            React.createElement(List, { myPolls: this.state.myPolls })
 	        );
 	    }
 	});
@@ -49771,6 +49858,15 @@
 	            //
 	            PollActions.createPoll(res.body.data);
 	        });
+	    },
+	    // User specific polls
+	    getMyPolls: function getMyPolls() {
+	        request.get('api/mypolls').end(function (err, res) {
+	            if (err) throw err;
+	            //
+	            console.log('my polls ', res.body.data);
+	            PollActions.getMyPolls(res.body.data);
+	        });
 	    }
 	};
 
@@ -49790,10 +49886,10 @@
 	
 	var PollActions = {
 	    // Get Polls
-	    getPolls: function getPolls(data) {
+	    getPolls: function getPolls(polls) {
 	        AppDispatcher.handleAction({
 	            actionType: PollConstants.GET_POLLS,
-	            data: data
+	            data: polls
 	        });
 	    },
 	    // Create Poll
@@ -49801,6 +49897,13 @@
 	        AppDispatcher.handleAction({
 	            actionType: PollConstants.CREATE_POLL,
 	            data: newPoll
+	        });
+	    },
+	    // Get My Polls
+	    getMyPolls: function getMyPolls(myPolls) {
+	        AppDispatcher.handleAction({
+	            actionType: PollConstants.GET_MY_POLLS,
+	            data: myPolls
 	        });
 	    }
 	};

@@ -21,5 +21,14 @@ module.exports = {
             //
             PollActions.createPoll(res.body.data)
         })
+    },
+    // User specific polls
+    getMyPolls: function() {
+        request.get('api/mypolls').end(function(err, res) {
+            if(err) throw err
+            //
+            console.log('my polls ', res.body.data)
+            PollActions.getMyPolls(res.body.data)
+        })
     }
 }

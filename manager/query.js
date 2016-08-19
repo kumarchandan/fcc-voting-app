@@ -22,6 +22,29 @@ function getPolls(req, res, next) {
     })
 }
 
+// Get User specific polls
+function getMyPolls(req, res, next) {
+    //
+    if(!req.user.username) {
+        res.status(200).json({
+            data: null
+        })
+    }
+    //
+    var username = req.user._id
+    Poll.find({ ownerUserid: username }, function(err, polls) {
+        if(polls.length !== 0) {
+            res.status(200).json({
+                data: polls
+            })
+        } else {
+            res.status(200).json({
+                data: null
+            })
+        }
+    })
+}
+
 // Create Poll
 function createPoll(req, res, next) {
     //
@@ -57,5 +80,6 @@ function createPoll(req, res, next) {
 
 module.exports = {
     getPolls: getPolls,
-    createPoll: createPoll
+    createPoll: createPoll,
+    getMyPolls: getMyPolls
 }
