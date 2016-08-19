@@ -9,7 +9,7 @@ import { ListGroup, ListGroupItem, Jumbotron } from 'react-bootstrap'
 //
 var List = React.createClass({
     //
-    render: function() {
+    render: function() {    
         var row = []
         var counter = 4567
         if(this.props.myPolls && this.props.myPolls.length !== 0) {

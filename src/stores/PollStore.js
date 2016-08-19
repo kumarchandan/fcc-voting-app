@@ -15,14 +15,17 @@ var _myPolls = []
 function loadPolls(data) {
     _polls = data
 }
-// Add New Poll
-function addPoll(data) {
-    _polls.push(data)
-}
 // User specific polls
 function loadMyPolls(data) {
     _myPolls = data
 }
+
+// Add New Poll
+function addPoll(data) {
+    _polls.push(data)
+    _myPolls.push(data)
+}
+
 
 // PollStore Instance
 // Extend with EventEmitter.prototype to add event capabilities
