@@ -57,13 +57,13 @@
 	var ReactDOM = __webpack_require__(/*! react-dom */ 96);
 	
 	var IndexPage = __webpack_require__(/*! ./components/Index.react */ 235);
-	var Polls = __webpack_require__(/*! ./components/Polls.react */ 490);
-	var NewPoll = __webpack_require__(/*! ./components/NewPoll.react */ 499);
-	var MyPolls = __webpack_require__(/*! ./components/MyPolls.react */ 500);
-	var PollDetails = __webpack_require__(/*! ./components/PollDetails.react */ 501);
+	var Polls = __webpack_require__(/*! ./components/Polls.react */ 498);
+	var NewPoll = __webpack_require__(/*! ./components/NewPoll.react */ 508);
+	var MyPolls = __webpack_require__(/*! ./components/MyPolls.react */ 509);
+	var PollDetails = __webpack_require__(/*! ./components/PollDetails.react */ 510);
 	
 	// Utilities
-	var PollAPI = __webpack_require__(/*! ./utils/PollAPI */ 502);
+	var PollAPI = __webpack_require__(/*! ./utils/PollAPI */ 501);
 	var AuthAPI = __webpack_require__(/*! ./utils/AuthAPI */ 511);
 	
 	// Load data
@@ -27454,7 +27454,7 @@
 	
 	var React = __webpack_require__(/*! react */ 3);
 	
-	var AuthStore = __webpack_require__(/*! ../stores/AuthStore */ 512);
+	var AuthStore = __webpack_require__(/*! ../stores/AuthStore */ 490);
 	
 	// changes
 	function getState() {
@@ -47217,173 +47217,56 @@
 
 /***/ },
 /* 490 */
-/*!***************************************!*\
-  !*** ./src/components/Polls.react.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
-	
-	// Polls.react.js : List of All Polls - Access All
-	
-	var React = __webpack_require__(/*! react */ 3);
-	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 491);
-	
-	// Bootstrap elements
-	
-	
-	// List - All Polls
-	var List = React.createClass({
-	    displayName: 'List',
-	
-	    //
-	    render: function render() {
-	        var pollRow = [];
-	        var counter = 1001;
-	        if (this.props.polls && this.props.polls.length !== 0) {
-	            this.props.polls.forEach(function (poll) {
-	                pollRow.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: counter++ }));
-	            });
-	            //
-	            return React.createElement(
-	                _reactBootstrap.ListGroup,
-	                null,
-	                pollRow
-	            );
-	        } else {
-	            return null;
-	        }
-	    }
-	});
-	
-	// get data from store
-	function getState() {
-	    return {
-	        polls: PollStore.getPolls() // TODO - call PollStore-getPoll here
-	    };
-	}
-	
-	// Jumbotron
-	var Polls = React.createClass({
-	    displayName: 'Polls',
-	
-	
-	    _onChange: function _onChange() {
-	        this.setState(getState());
-	    },
-	
-	    getInitialState: function getInitialState() {
-	        return getState();
-	    },
-	
-	    componentDidMount: function componentDidMount() {
-	        PollStore.addChangeListener(this._onChange);
-	    },
-	
-	    componentWillUnmount: function componentWillUnmount() {
-	        PollStore.removeChangeListener(this._onChange);
-	    },
-	    // render
-	    render: function render() {
-	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
-	            null,
-	            React.createElement(
-	                'h2',
-	                null,
-	                ' All Polls '
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(List, { polls: this.state.polls })
-	        );
-	    }
-	});
-	
-	module.exports = Polls;
-
-/***/ },
-/* 491 */
 /*!*********************************!*\
-  !*** ./src/stores/PollStore.js ***!
+  !*** ./src/stores/AuthStore.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	// PollStore.js
+	// AuthStore.js
 	
-	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
-	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 496);
-	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 502);
-	var EventEmitter = __webpack_require__(/*! events */ 497).EventEmitter;
-	var _ = __webpack_require__(/*! underscore */ 498);
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 491);
+	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 495);
+	var EventEmitter = __webpack_require__(/*! events */ 496).EventEmitter;
+	var _ = __webpack_require__(/*! underscore */ 497);
 	
-	// Private data
-	var _polls = [];
-	var _myPolls = [];
+	// private data
+	var _profile = null;
 	
-	// All Polls
-	function loadPolls(data) {
-	    _polls = data;
-	}
-	// User specific polls
-	function loadMyPolls(data) {
-	    _myPolls = data;
+	// helper functions
+	function loadProfile(data) {
+	    _profile = data;
 	}
 	
-	// Add New Poll
-	function addPoll(data) {
-	    _polls.push(data);
-	    _myPolls.push(data);
-	}
-	
-	// PollStore Instance
-	// Extend with EventEmitter.prototype to add event capabilities
-	var PollStore = _.extend({}, EventEmitter.prototype, {
+	// events - underscore
+	var AuthStore = _.extend({}, EventEmitter.prototype, {
 	    //
-	    getPolls: function getPolls() {
-	        return _polls;
-	    },
-	    //
-	    getMyPolls: function getMyPolls() {
-	        if (_myPolls && _myPolls.length === 0) {
-	            PollAPI.getMyPolls();
-	        }
-	        return _myPolls;
+	    getAuthData: function getAuthData() {
+	        return _profile;
 	    },
 	    //
 	    emitChange: function emitChange() {
-	        this.emit('pollChanged');
+	        this.emit('dataChanges');
 	    },
 	    //
-	    addChangeListener: function addChangeListener(callback) {
-	        this.on('pollChanged', callback);
+	    addChangeListener: function addChangeListener(done) {
+	        this.addListener('dataChanges', done);
 	    },
 	    //
-	    removeChangeListener: function removeChangeListener(callback) {
-	        this.removeListener('pollChanged', callback);
+	    removeChangeListener: function removeChangeListener(done) {
+	        this.removeListener('dataChanges', done);
 	    }
 	});
 	
-	// register callback with dispatcher
+	// Register AuthStore's Callback to Dispatcher : To receive payload
 	AppDispatcher.register(function (payload) {
-	    //
 	    var action = payload.action;
 	    //
 	    switch (action.actionType) {
-	        case PollConstants.GET_POLLS:
-	            loadPolls(action.data); // loadPolls
-	            PollStore.emitChange();
-	            break;
-	        case PollConstants.CREATE_POLL:
-	            addPoll(action.data); // addPoll
-	            PollStore.emitChange();
-	            break;
-	        case PollConstants.GET_MY_POLLS:
-	            loadMyPolls(action.data); // loadMyPolls
-	            PollStore.emitChange();
+	        case AuthConstants.IS_AUTHENTICATED:
+	            loadProfile(action.data);
+	            AuthStore.emitChange();
 	            break;
 	        default:
 	            return true;
@@ -47391,10 +47274,10 @@
 	    return true;
 	});
 	
-	module.exports = PollStore;
+	module.exports = AuthStore;
 
 /***/ },
-/* 492 */
+/* 491 */
 /*!*****************************************!*\
   !*** ./src/dispatcher/AppDispatcher.js ***!
   \*****************************************/
@@ -47404,7 +47287,7 @@
 	
 	// AppDispatcher.js
 	
-	var Dispatcher = __webpack_require__(/*! flux */ 493).Dispatcher;
+	var Dispatcher = __webpack_require__(/*! flux */ 492).Dispatcher;
 	
 	// Create Dispatcher instance
 	var AppDispatcher = new Dispatcher();
@@ -47422,7 +47305,7 @@
 	module.exports = AppDispatcher;
 
 /***/ },
-/* 493 */
+/* 492 */
 /*!*************************!*\
   !*** ./~/flux/index.js ***!
   \*************************/
@@ -47437,11 +47320,11 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 494);
+	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 493);
 
 
 /***/ },
-/* 494 */
+/* 493 */
 /*!**********************************!*\
   !*** ./~/flux/lib/Dispatcher.js ***!
   \**********************************/
@@ -47466,7 +47349,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 495);
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 494);
 	
 	var _prefix = 'ID_';
 	
@@ -47681,7 +47564,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 5)))
 
 /***/ },
-/* 495 */
+/* 494 */
 /*!****************************************!*\
   !*** ./~/flux/~/fbjs/lib/invariant.js ***!
   \****************************************/
@@ -47739,26 +47622,24 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 5)))
 
 /***/ },
-/* 496 */
+/* 495 */
 /*!****************************************!*\
-  !*** ./src/constants/PollConstants.js ***!
+  !*** ./src/constants/AuthConstants.js ***!
   \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	// PollConstants.js
+	// AuthConstants.js
 	
 	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 24);
 	
 	module.exports = keyMirror({
-	    GET_POLLS: null,
-	    CREATE_POLL: null,
-	    GET_MY_POLLS: null
+	    IS_AUTHENTICATED: null
 	});
 
 /***/ },
-/* 497 */
+/* 496 */
 /*!****************************!*\
   !*** ./~/events/events.js ***!
   \****************************/
@@ -48069,7 +47950,7 @@
 
 
 /***/ },
-/* 498 */
+/* 497 */
 /*!************************************!*\
   !*** ./~/underscore/underscore.js ***!
   \************************************/
@@ -49626,120 +49507,49 @@
 
 
 /***/ },
-/* 499 */
-/*!*****************************************!*\
-  !*** ./src/components/NewPoll.react.js ***!
-  \*****************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _reactRouter = __webpack_require__(/*! react-router */ 1);
-	
-	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
-	
-	// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
-	
-	var React = __webpack_require__(/*! react */ 3);
-	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 502);
-	
-	// Bootstrap elements
-	
-	
-	// Styles
-	var taStyle = {
-	    width: '500px',
-	    height: '169px'
-	};
-	var inpStyle = {
-	    width: '500px'
-	};
-	
-	//
-	var NewPoll = React.createClass({
-	    displayName: 'NewPoll',
-	
-	    //
-	    createPoll: function createPoll() {
-	        //
-	        var title = this.refs.title.value;
-	        var options = this.refs.options.value.split(',');
-	        console.log(title, options);
-	        var poll = {
-	            title: title,
-	            options: options
-	        };
-	        PollAPI.createPoll(poll);
-	        // Navigate to Home
-	        this.props.history.push('/');
-	    },
-	    render: function render() {
-	        //
-	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
-	            null,
-	            React.createElement(
-	                'h3',
-	                null,
-	                'Create New Poll'
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	                'form',
-	                null,
-	                React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
-	                React.createElement('br', null),
-	                React.createElement('br', null),
-	                React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle }),
-	                React.createElement('br', null),
-	                React.createElement('br', null),
-	                React.createElement(
-	                    _reactBootstrap.Button,
-	                    { bsStyle: 'success', onClick: this.createPoll },
-	                    'Submit'
-	                )
-	            )
-	        );
-	    }
-	});
-	
-	module.exports = NewPoll;
-
-/***/ },
-/* 500 */
-/*!*****************************************!*\
-  !*** ./src/components/MyPolls.react.js ***!
-  \*****************************************/
+/* 498 */
+/*!***************************************!*\
+  !*** ./src/components/Polls.react.js ***!
+  \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
 	
-	// MyPolls.react.js : List of Polls - Access Authenticated User Only
+	var _reactRouterBootstrap = __webpack_require__(/*! react-router-bootstrap */ 487);
+	
+	// Polls.react.js : List of All Polls - Access All
 	
 	var React = __webpack_require__(/*! react */ 3);
-	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 491);
+	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 499);
 	
 	// Bootstrap elements
 	
 	
-	//
+	// Private data
+	var _key = null;
+	
+	// List - All Polls
 	var List = React.createClass({
 	    displayName: 'List',
 	
 	    //
 	    render: function render() {
-	        var row = [];
-	        var counter = 4567;
-	        if (this.props.myPolls && this.props.myPolls.length !== 0) {
-	            this.props.myPolls.forEach(function (poll) {
-	                row.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: counter++ }));
+	        var pollRow = [];
+	        if (this.props.polls && this.props.polls.length !== 0) {
+	            this.props.polls.forEach(function (poll) {
+	                pollRow.push(React.createElement(
+	                    _reactRouterBootstrap.LinkContainer,
+	                    { to: '/polls/' + poll._id, key: poll._id },
+	                    React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: poll._id })
+	                ));
 	            });
+	            //
 	            return React.createElement(
 	                _reactBootstrap.ListGroup,
 	                null,
-	                row
+	                pollRow
 	            );
 	        } else {
 	            return null;
@@ -49747,89 +49557,173 @@
 	    }
 	});
 	
-	//
-	function getMyPolls() {
+	// get data from store
+	function getState() {
 	    return {
-	        myPolls: PollStore.getMyPolls()
+	        polls: PollStore.getPolls() // TODO - call PollStore-getPoll here
 	    };
 	}
-	// 
-	var MyPolls = React.createClass({
-	    displayName: 'MyPolls',
 	
-	    //
+	// Jumbotron
+	var Polls = React.createClass({
+	    displayName: 'Polls',
+	
+	
 	    _onChange: function _onChange() {
-	        this.setState(getMyPolls());
+	        this.setState(getState());
 	    },
-	    //
+	
 	    getInitialState: function getInitialState() {
-	        return getMyPolls();
+	        return getState();
 	    },
-	    //
-	    componentWillMount: function componentWillMount() {
+	
+	    componentDidMount: function componentDidMount() {
 	        PollStore.addChangeListener(this._onChange);
 	    },
-	    //
+	
 	    componentWillUnmount: function componentWillUnmount() {
 	        PollStore.removeChangeListener(this._onChange);
 	    },
-	    //
+	    // render
 	    render: function render() {
 	        return React.createElement(
 	            _reactBootstrap.Jumbotron,
 	            null,
 	            React.createElement(
-	                'h3',
+	                'h2',
 	                null,
-	                'Your Polls'
+	                ' All Polls '
 	            ),
 	            React.createElement('br', null),
-	            React.createElement(List, { myPolls: this.state.myPolls })
+	            React.createElement(List, { polls: this.state.polls })
 	        );
 	    }
 	});
 	
-	module.exports = MyPolls;
+	module.exports = Polls;
 
 /***/ },
-/* 501 */
-/*!*********************************************!*\
-  !*** ./src/components/PollDetails.react.js ***!
-  \*********************************************/
+/* 499 */
+/*!*********************************!*\
+  !*** ./src/stores/PollStore.js ***!
+  \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	// PollDetails.react.js : Details and Results of a single Poll - Access All
+	// PollStore.js
 	
-	var React = __webpack_require__(/*! react */ 3);
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 491);
+	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 500);
+	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 501);
+	var EventEmitter = __webpack_require__(/*! events */ 496).EventEmitter;
+	var _ = __webpack_require__(/*! underscore */ 497);
 	
-	var PollDetails = React.createClass({
-	    displayName: 'PollDetails',
+	// Private data
+	var _polls = [];
+	var _myPolls = [];
 	
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'h3',
-	                null,
-	                'Poll Details and Results:'
-	            ),
-	            React.createElement(
-	                'p',
-	                null,
-	                'Poll ID displayed is ',
-	                this.props.params.pollID
-	            )
-	        );
+	// All Polls
+	function loadPolls(data) {
+	    _polls = data;
+	}
+	// User specific polls
+	function loadMyPolls(data) {
+	    _myPolls = data;
+	}
+	
+	// Add New Poll
+	function addPoll(data) {
+	    _polls.push(data);
+	    _myPolls.push(data);
+	}
+	
+	// PollStore Instance
+	// Extend with EventEmitter.prototype to add event capabilities
+	var PollStore = _.extend({}, EventEmitter.prototype, {
+	    //
+	    getPolls: function getPolls() {
+	        return _polls;
+	    },
+	    //
+	    getMyPolls: function getMyPolls() {
+	        if (_myPolls && _myPolls.length === 0) {
+	            PollAPI.getMyPolls();
+	        }
+	        return _myPolls;
+	    },
+	    //
+	    getPollDetails: function getPollDetails(_id) {
+	        debugger;
+	        if (_polls && _polls.length !== 0) {
+	            var data = _polls.filter(function (poll) {
+	                return poll._id === _id;
+	            });
+	            return data;
+	        }
+	        return null;
+	    },
+	    //
+	    emitChange: function emitChange() {
+	        this.emit('pollChanged');
+	    },
+	    //
+	    addChangeListener: function addChangeListener(callback) {
+	        this.on('pollChanged', callback);
+	    },
+	    //
+	    removeChangeListener: function removeChangeListener(callback) {
+	        this.removeListener('pollChanged', callback);
 	    }
 	});
 	
-	module.exports = PollDetails;
+	// register callback with dispatcher
+	AppDispatcher.register(function (payload) {
+	    //
+	    var action = payload.action;
+	    //
+	    switch (action.actionType) {
+	        case PollConstants.GET_POLLS:
+	            loadPolls(action.data); // loadPolls
+	            PollStore.emitChange();
+	            break;
+	        case PollConstants.CREATE_POLL:
+	            addPoll(action.data); // addPoll
+	            PollStore.emitChange();
+	            break;
+	        case PollConstants.GET_MY_POLLS:
+	            loadMyPolls(action.data); // loadMyPolls
+	            PollStore.emitChange();
+	            break;
+	        default:
+	            return true;
+	    }
+	    return true;
+	});
+	
+	module.exports = PollStore;
 
 /***/ },
-/* 502 */
+/* 500 */
+/*!****************************************!*\
+  !*** ./src/constants/PollConstants.js ***!
+  \****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// PollConstants.js
+	
+	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 24);
+	
+	module.exports = keyMirror({
+	    GET_POLLS: null,
+	    CREATE_POLL: null,
+	    GET_MY_POLLS: null
+	});
+
+/***/ },
+/* 501 */
 /*!******************************!*\
   !*** ./src/utils/PollAPI.js ***!
   \******************************/
@@ -49839,8 +49733,8 @@
 	
 	// PollAPI.js
 	
-	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 503);
-	var request = __webpack_require__(/*! superagent */ 504);
+	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 502);
+	var request = __webpack_require__(/*! superagent */ 503);
 	
 	// Utility to load data first time
 	module.exports = {
@@ -49873,7 +49767,7 @@
 	};
 
 /***/ },
-/* 503 */
+/* 502 */
 /*!************************************!*\
   !*** ./src/actions/PollActions.js ***!
   \************************************/
@@ -49883,8 +49777,8 @@
 	
 	// PollActions.js
 	
-	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
-	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 496);
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 491);
+	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 500);
 	
 	var PollActions = {
 	    // Get Polls
@@ -49913,7 +49807,7 @@
 	module.exports = PollActions;
 
 /***/ },
-/* 504 */
+/* 503 */
 /*!************************************!*\
   !*** ./~/superagent/lib/client.js ***!
   \************************************/
@@ -49933,9 +49827,9 @@
 	  root = this;
 	}
 	
-	var Emitter = __webpack_require__(/*! emitter */ 505);
-	var requestBase = __webpack_require__(/*! ./request-base */ 506);
-	var isObject = __webpack_require__(/*! ./is-object */ 507);
+	var Emitter = __webpack_require__(/*! emitter */ 504);
+	var requestBase = __webpack_require__(/*! ./request-base */ 505);
+	var isObject = __webpack_require__(/*! ./is-object */ 506);
 	
 	/**
 	 * Noop.
@@ -49947,7 +49841,7 @@
 	 * Expose `request`.
 	 */
 	
-	var request = module.exports = __webpack_require__(/*! ./request */ 508).bind(null, Request);
+	var request = module.exports = __webpack_require__(/*! ./request */ 507).bind(null, Request);
 	
 	/**
 	 * Determine XHR.
@@ -50898,7 +50792,7 @@
 
 
 /***/ },
-/* 505 */
+/* 504 */
 /*!**************************************!*\
   !*** ./~/component-emitter/index.js ***!
   \**************************************/
@@ -51070,7 +50964,7 @@
 
 
 /***/ },
-/* 506 */
+/* 505 */
 /*!******************************************!*\
   !*** ./~/superagent/lib/request-base.js ***!
   \******************************************/
@@ -51079,7 +50973,7 @@
 	/**
 	 * Module of mixed-in functions shared between node and client code
 	 */
-	var isObject = __webpack_require__(/*! ./is-object */ 507);
+	var isObject = __webpack_require__(/*! ./is-object */ 506);
 	
 	/**
 	 * Clear previous timeout.
@@ -51426,7 +51320,7 @@
 
 
 /***/ },
-/* 507 */
+/* 506 */
 /*!***************************************!*\
   !*** ./~/superagent/lib/is-object.js ***!
   \***************************************/
@@ -51448,7 +51342,7 @@
 
 
 /***/ },
-/* 508 */
+/* 507 */
 /*!*************************************!*\
   !*** ./~/superagent/lib/request.js ***!
   \*************************************/
@@ -51489,7 +51383,262 @@
 
 
 /***/ },
+/* 508 */
+/*!*****************************************!*\
+  !*** ./src/components/NewPoll.react.js ***!
+  \*****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _reactRouter = __webpack_require__(/*! react-router */ 1);
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
+	// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
+	
+	var React = __webpack_require__(/*! react */ 3);
+	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 501);
+	
+	// Bootstrap elements
+	
+	
+	// Styles
+	var taStyle = {
+	    width: '500px',
+	    height: '169px'
+	};
+	var inpStyle = {
+	    width: '500px'
+	};
+	
+	//
+	var NewPoll = React.createClass({
+	    displayName: 'NewPoll',
+	
+	    //
+	    createPoll: function createPoll() {
+	        //
+	        var title = this.refs.title.value;
+	        var options = this.refs.options.value.split(',');
+	        console.log(title, options);
+	        var poll = {
+	            title: title,
+	            options: options
+	        };
+	        PollAPI.createPoll(poll);
+	        // Navigate to Home
+	        this.props.history.push('/');
+	    },
+	    render: function render() {
+	        //
+	        return React.createElement(
+	            _reactBootstrap.Jumbotron,
+	            null,
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Create New Poll'
+	            ),
+	            React.createElement('br', null),
+	            React.createElement(
+	                'form',
+	                null,
+	                React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
+	                React.createElement('br', null),
+	                React.createElement('br', null),
+	                React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle }),
+	                React.createElement('br', null),
+	                React.createElement('br', null),
+	                React.createElement(
+	                    _reactBootstrap.Button,
+	                    { bsStyle: 'success', onClick: this.createPoll },
+	                    'Submit'
+	                )
+	            )
+	        );
+	    }
+	});
+	
+	module.exports = NewPoll;
+
+/***/ },
 /* 509 */
+/*!*****************************************!*\
+  !*** ./src/components/MyPolls.react.js ***!
+  \*****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
+	// MyPolls.react.js : List of Polls - Access Authenticated User Only
+	
+	var React = __webpack_require__(/*! react */ 3);
+	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 499);
+	
+	// Bootstrap elements
+	
+	
+	//
+	var List = React.createClass({
+	    displayName: 'List',
+	
+	    //
+	    render: function render() {
+	        var row = [];
+	        if (this.props.myPolls && this.props.myPolls.length !== 0) {
+	            this.props.myPolls.forEach(function (poll) {
+	                row.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: poll._id }));
+	            });
+	            return React.createElement(
+	                _reactBootstrap.ListGroup,
+	                null,
+	                row
+	            );
+	        } else {
+	            return null;
+	        }
+	    }
+	});
+	
+	//
+	function getMyPolls() {
+	    return {
+	        myPolls: PollStore.getMyPolls()
+	    };
+	}
+	// 
+	var MyPolls = React.createClass({
+	    displayName: 'MyPolls',
+	
+	    //
+	    _onChange: function _onChange() {
+	        this.setState(getMyPolls());
+	    },
+	    //
+	    getInitialState: function getInitialState() {
+	        return getMyPolls();
+	    },
+	    //
+	    componentWillMount: function componentWillMount() {
+	        PollStore.addChangeListener(this._onChange);
+	    },
+	    //
+	    componentWillUnmount: function componentWillUnmount() {
+	        PollStore.removeChangeListener(this._onChange);
+	    },
+	    //
+	    render: function render() {
+	        return React.createElement(
+	            _reactBootstrap.Jumbotron,
+	            null,
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Your Polls'
+	            ),
+	            React.createElement('br', null),
+	            React.createElement(List, { myPolls: this.state.myPolls })
+	        );
+	    }
+	});
+	
+	module.exports = MyPolls;
+
+/***/ },
+/* 510 */
+/*!*********************************************!*\
+  !*** ./src/components/PollDetails.react.js ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
+	
+	// PollDetails.react.js : Details and Results of a single Poll - Access All
+	
+	var React = __webpack_require__(/*! react */ 3);
+	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 499);
+	
+	//
+	function getPollDetails(_id) {
+	    return {
+	        poll: PollStore.getPollDetails(_id)
+	    };
+	}
+	
+	//
+	var PollDetails = React.createClass({
+	    displayName: 'PollDetails',
+	
+	    //
+	    _onChange: function _onChange() {
+	        this.setState(getPollDetails(this.props.params.pollID));
+	    },
+	    //
+	    getInitialState: function getInitialState() {
+	        return getPollDetails(this.props.params.pollID);
+	    },
+	    //
+	    componentDidMount: function componentDidMount() {
+	        PollStore.addChangeListener(this._onChange);
+	    },
+	    //
+	    componentWillUnmount: function componentWillUnmount() {
+	        PollStore.removeChangeListener(this._onChange);
+	    },
+	    //
+	    render: function render() {
+	        debugger;
+	        return React.createElement(
+	            _reactBootstrap.Jumbotron,
+	            null,
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Poll Title:'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                this.state.poll[0].title
+	            )
+	        );
+	    }
+	});
+	
+	module.exports = PollDetails;
+
+/***/ },
+/* 511 */
+/*!******************************!*\
+  !*** ./src/utils/AuthAPI.js ***!
+  \******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// utils/AuthAPI.js
+	var request = __webpack_require__(/*! superagent */ 503);
+	var AuthActions = __webpack_require__(/*! ../actions/AuthActions */ 512);
+	
+	module.exports = {
+	    //
+	    isAuthenticated: function isAuthenticated() {
+	        request.get('api/auth').end(function (err, res) {
+	            if (err) throw err;
+	            console.log('isAuthenticated ', res.body.data);
+	            //
+	            AuthActions.isAuthenticated(res.body.data);
+	        });
+	    }
+	};
+
+/***/ },
+/* 512 */
 /*!************************************!*\
   !*** ./src/actions/AuthActions.js ***!
   \************************************/
@@ -51499,8 +51648,8 @@
 	
 	// AuthActions.js
 	
-	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
-	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 510);
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 491);
+	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 495);
 	
 	// Flux Story :)
 	// Action gets the payload(data) and hand it over to Dispatcher
@@ -51518,109 +51667,6 @@
 	};
 	
 	module.exports = AuthActions;
-
-/***/ },
-/* 510 */
-/*!****************************************!*\
-  !*** ./src/constants/AuthConstants.js ***!
-  \****************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// AuthConstants.js
-	
-	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 24);
-	
-	module.exports = keyMirror({
-	    IS_AUTHENTICATED: null
-	});
-
-/***/ },
-/* 511 */
-/*!******************************!*\
-  !*** ./src/utils/AuthAPI.js ***!
-  \******************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// utils/AuthAPI.js
-	var request = __webpack_require__(/*! superagent */ 504);
-	var AuthActions = __webpack_require__(/*! ../actions/AuthActions */ 509);
-	
-	module.exports = {
-	    //
-	    isAuthenticated: function isAuthenticated() {
-	        request.get('api/auth').end(function (err, res) {
-	            if (err) throw err;
-	            console.log('isAuthenticated ', res.body.data);
-	            //
-	            AuthActions.isAuthenticated(res.body.data);
-	        });
-	    }
-	};
-
-/***/ },
-/* 512 */
-/*!*********************************!*\
-  !*** ./src/stores/AuthStore.js ***!
-  \*********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// AuthStore.js
-	
-	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 492);
-	var AuthConstants = __webpack_require__(/*! ../constants/AuthConstants */ 510);
-	var EventEmitter = __webpack_require__(/*! events */ 497).EventEmitter;
-	var _ = __webpack_require__(/*! underscore */ 498);
-	
-	// private data
-	var _profile = null;
-	
-	// helper functions
-	function loadProfile(data) {
-	    _profile = data;
-	}
-	
-	// events - underscore
-	var AuthStore = _.extend({}, EventEmitter.prototype, {
-	    //
-	    getAuthData: function getAuthData() {
-	        return _profile;
-	    },
-	    //
-	    emitChange: function emitChange() {
-	        this.emit('dataChanges');
-	    },
-	    //
-	    addChangeListener: function addChangeListener(done) {
-	        this.addListener('dataChanges', done);
-	    },
-	    //
-	    removeChangeListener: function removeChangeListener(done) {
-	        this.removeListener('dataChanges', done);
-	    }
-	});
-	
-	// Register AuthStore's Callback to Dispatcher : To receive payload
-	AppDispatcher.register(function (payload) {
-	    var action = payload.action;
-	    //
-	    switch (action.actionType) {
-	        case AuthConstants.IS_AUTHENTICATED:
-	            loadProfile(action.data);
-	            AuthStore.emitChange();
-	            break;
-	        default:
-	            return true;
-	    }
-	    return true;
-	});
-	
-	module.exports = AuthStore;
 
 /***/ }
 /******/ ]);

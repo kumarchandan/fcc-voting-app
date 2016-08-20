@@ -5,16 +5,23 @@ var PollStore = require('../stores/PollStore')
 
 // Bootstrap elements
 import { ListGroup, ListGroupItem, Jumbotron } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
+
+// Private data
+var _key = null
 
 // List - All Polls
 var List = React.createClass({
     //
     render: function() {
         var pollRow = []
-        var counter = 1001
         if(this.props.polls && this.props.polls.length !== 0) {
             this.props.polls.forEach(function(poll) {
-                pollRow.push(<ListGroupItem header={poll.title} key={counter++}></ListGroupItem>)
+                pollRow.push(
+                    <LinkContainer to={'/polls/'+poll._id} key={poll._id}>
+                        <ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>
+                    </LinkContainer>
+                )
             })
             //
             return (

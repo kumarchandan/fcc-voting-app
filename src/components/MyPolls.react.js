@@ -11,10 +11,9 @@ var List = React.createClass({
     //
     render: function() {    
         var row = []
-        var counter = 4567
         if(this.props.myPolls && this.props.myPolls.length !== 0) {
             this.props.myPolls.forEach(function(poll) {
-                row.push(<ListGroupItem header={poll.title} key={counter++}></ListGroupItem>)
+                row.push(<ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>)
             })
             return (
                 <ListGroup>

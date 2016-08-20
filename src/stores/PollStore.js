@@ -42,6 +42,17 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
         return _myPolls
     },
     //
+    getPollDetails: function(_id) {
+        debugger
+        if(_polls && _polls.length !== 0) {
+            var data = _polls.filter(function(poll) {
+                return poll._id === _id
+            })
+            return data
+        }
+        return null
+    },
+    //
     emitChange: function() {
         this.emit('pollChanged')
     },
