@@ -1,6 +1,6 @@
 // checkAuth.js : check if user is authorized - session
 
-function isLoggedIn(req, res, next) {
+function isAuthenticated(req, res, next) {
   // if user is authenticated in session carry on
   if(req.isAuthenticated()) {
     res.status(200).json({
@@ -14,5 +14,5 @@ function isLoggedIn(req, res, next) {
 }
 
 module.exports = {
-    isAuthenticated: isLoggedIn
+    isAuthenticated: isAuthenticated
 }

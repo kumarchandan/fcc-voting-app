@@ -6,7 +6,7 @@ var PollAPI = require('../utils/PollAPI')
 import { browserHistory } from 'react-router'
 
 // Bootstrap elements
-import { Jumbotron, Button } from 'react-bootstrap'
+import { Jumbotron, Button, Grid, Row, Col } from 'react-bootstrap'
 
 // Styles
 var taStyle = {
@@ -36,19 +36,26 @@ var NewPoll = React.createClass({
     render: function() {
         //
         return (
-            <Jumbotron>
-                <h3>Create New Poll</h3>
-                <br />
-                <form>
-                    <input id="newTitle" ref='title' type="text" style={inpStyle} placeholder="Enter poll title..." />
-                    <br />
-                    <br />
-                    <textarea id="newOptions" ref='options' style={taStyle} />
-                    <br />
-                    <br />
-                    <Button bsStyle="success" onClick={this.createPoll}>Submit</Button>
-                </form>
-            </Jumbotron>
+            <Grid>
+                <Row>
+                    <Col lg={12}>
+                        <Jumbotron>
+                            <h3>Create New Poll</h3>
+                            <br />
+                            <form>
+                                <input id="newTitle" ref='title' type="text" style={inpStyle} placeholder="Enter poll title..." />
+                                <br />
+                                <br />
+                                <textarea id="newOptions" ref='options' style={taStyle} placeholder='your options [comma seperated]' />
+                                <br />
+                                <br />
+                                <Button bsStyle="success" onClick={this.createPoll}>Submit</Button>
+                            </form>
+                        </Jumbotron>
+                    </Col>
+                </Row>
+            </Grid>
+            
         )
     }
 })

@@ -4,7 +4,8 @@ var React = require('react')
 var PollStore = require('../stores/PollStore')
 
 // Bootstrap elements
-import { ListGroup, ListGroupItem, Jumbotron } from 'react-bootstrap'
+import { ListGroup, ListGroupItem, Jumbotron, Grid, Row, Col, Thumbnail } from 'react-bootstrap'
+
 import { LinkContainer } from 'react-router-bootstrap'
 
 // Private data
@@ -64,11 +65,17 @@ var Polls = React.createClass({
     // render
     render: function() {
         return (
-            <Jumbotron>
-                <h2> All Polls </h2>
-                <br />
-                <List polls={this.state.polls} />
-            </Jumbotron>
+            <Grid>
+                <Row>
+                    <Col lg={12}>
+                        <Jumbotron>
+                            <h2> All Polls </h2>
+                            <br />
+                            <List polls={this.state.polls} />
+                        </Jumbotron>
+                    </Col>
+                </Row>
+            </Grid>
         )
     }
 })

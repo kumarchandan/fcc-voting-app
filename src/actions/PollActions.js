@@ -24,6 +24,14 @@ var PollActions = {
             actionType: PollConstants.GET_MY_POLLS,
             data: myPolls
         })
+    },
+    // Vote
+    vote: function(pollID, optionSel) {
+        AppDispatcher.handleAction({
+            actionType: PollConstants.VOTE,
+            pollID: pollID,
+            optionSel: optionSel
+        })
     }
 }
 

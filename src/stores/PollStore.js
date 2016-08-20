@@ -43,7 +43,6 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
     },
     //
     getPollDetails: function(_id) {
-        debugger
         if(_polls && _polls.length !== 0) {
             var data = _polls.filter(function(poll) {
                 return poll._id === _id

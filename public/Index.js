@@ -49587,15 +49587,27 @@
 	    // render
 	    render: function render() {
 	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
+	            _reactBootstrap.Grid,
 	            null,
 	            React.createElement(
-	                'h2',
+	                _reactBootstrap.Row,
 	                null,
-	                ' All Polls '
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(List, { polls: this.state.polls })
+	                React.createElement(
+	                    _reactBootstrap.Col,
+	                    { lg: 12 },
+	                    React.createElement(
+	                        _reactBootstrap.Jumbotron,
+	                        null,
+	                        React.createElement(
+	                            'h2',
+	                            null,
+	                            ' All Polls '
+	                        ),
+	                        React.createElement('br', null),
+	                        React.createElement(List, { polls: this.state.polls })
+	                    )
+	                )
+	            )
 	        );
 	    }
 	});
@@ -49654,7 +49666,6 @@
 	    },
 	    //
 	    getPollDetails: function getPollDetails(_id) {
-	        debugger;
 	        if (_polls && _polls.length !== 0) {
 	            var data = _polls.filter(function (poll) {
 	                return poll._id === _id;
@@ -49719,7 +49730,8 @@
 	module.exports = keyMirror({
 	    GET_POLLS: null,
 	    CREATE_POLL: null,
-	    GET_MY_POLLS: null
+	    GET_MY_POLLS: null,
+	    VOTE: null
 	});
 
 /***/ },
@@ -49738,7 +49750,7 @@
 	
 	// Utility to load data first time
 	module.exports = {
-	    //
+	    // Get All Polls
 	    getPolls: function getPolls() {
 	        request.get('api/polls').end(function (err, res) {
 	            if (err) throw err;
@@ -49747,21 +49759,28 @@
 	            PollActions.getPolls(res.body.data);
 	        });
 	    },
-	    //
+	    // Create New Poll
 	    createPoll: function createPoll(poll) {
-	        request.post('api/create').send(poll).set('Accept', 'application/json').end(function (err, res) {
+	        request.post('api/create').send(poll).end(function (err, res) {
 	            if (err) throw err;
 	            //
 	            PollActions.createPoll(res.body.data);
 	        });
 	    },
-	    // User specific polls
+	    // User Specific Polls
 	    getMyPolls: function getMyPolls() {
 	        request.get('api/mypolls').end(function (err, res) {
 	            if (err) throw err;
 	            //
 	            console.log('my polls ', res.body.data);
 	            PollActions.getMyPolls(res.body.data);
+	        });
+	    },
+	    // Vote
+	    vote: function vote(_id, optionSel) {
+	        request.post('api/vote').send({ _id: _id, optionSel: optionSel }).end(function (err, res) {
+	            if (err) throw err;
+	            //
 	        });
 	    }
 	};
@@ -49800,6 +49819,14 @@
 	        AppDispatcher.handleAction({
 	            actionType: PollConstants.GET_MY_POLLS,
 	            data: myPolls
+	        });
+	    },
+	    // Vote
+	    vote: function vote(pollID, optionSel) {
+	        AppDispatcher.handleAction({
+	            actionType: PollConstants.VOTE,
+	            pollID: pollID,
+	            optionSel: optionSel
 	        });
 	    }
 	};
@@ -51433,27 +51460,39 @@
 	    render: function render() {
 	        //
 	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
+	            _reactBootstrap.Grid,
 	            null,
 	            React.createElement(
-	                'h3',
+	                _reactBootstrap.Row,
 	                null,
-	                'Create New Poll'
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	                'form',
-	                null,
-	                React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
-	                React.createElement('br', null),
-	                React.createElement('br', null),
-	                React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle }),
-	                React.createElement('br', null),
-	                React.createElement('br', null),
 	                React.createElement(
-	                    _reactBootstrap.Button,
-	                    { bsStyle: 'success', onClick: this.createPoll },
-	                    'Submit'
+	                    _reactBootstrap.Col,
+	                    { lg: 12 },
+	                    React.createElement(
+	                        _reactBootstrap.Jumbotron,
+	                        null,
+	                        React.createElement(
+	                            'h3',
+	                            null,
+	                            'Create New Poll'
+	                        ),
+	                        React.createElement('br', null),
+	                        React.createElement(
+	                            'form',
+	                            null,
+	                            React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
+	                            React.createElement('br', null),
+	                            React.createElement('br', null),
+	                            React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle, placeholder: 'your options [comma seperated]' }),
+	                            React.createElement('br', null),
+	                            React.createElement('br', null),
+	                            React.createElement(
+	                                _reactBootstrap.Button,
+	                                { bsStyle: 'success', onClick: this.createPoll },
+	                                'Submit'
+	                            )
+	                        )
+	                    )
 	                )
 	            )
 	        );
@@ -51473,6 +51512,8 @@
 	
 	var _reactBootstrap = __webpack_require__(/*! react-bootstrap */ 236);
 	
+	var _reactRouterBootstrap = __webpack_require__(/*! react-router-bootstrap */ 487);
+	
 	// MyPolls.react.js : List of Polls - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
@@ -51490,7 +51531,11 @@
 	        var row = [];
 	        if (this.props.myPolls && this.props.myPolls.length !== 0) {
 	            this.props.myPolls.forEach(function (poll) {
-	                row.push(React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: poll._id }));
+	                row.push(React.createElement(
+	                    _reactRouterBootstrap.LinkContainer,
+	                    { to: '/polls/' + poll._id, key: poll._id },
+	                    React.createElement(_reactBootstrap.ListGroupItem, { header: poll.title, key: poll._id })
+	                ));
 	            });
 	            return React.createElement(
 	                _reactBootstrap.ListGroup,
@@ -51532,15 +51577,27 @@
 	    //
 	    render: function render() {
 	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
+	            _reactBootstrap.Grid,
 	            null,
 	            React.createElement(
-	                'h3',
+	                _reactBootstrap.Row,
 	                null,
-	                'Your Polls'
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(List, { myPolls: this.state.myPolls })
+	                React.createElement(
+	                    _reactBootstrap.Col,
+	                    { lg: 12 },
+	                    React.createElement(
+	                        _reactBootstrap.Jumbotron,
+	                        null,
+	                        React.createElement(
+	                            'h3',
+	                            null,
+	                            'Your Polls'
+	                        ),
+	                        React.createElement('br', null),
+	                        React.createElement(List, { myPolls: this.state.myPolls })
+	                    )
+	                )
+	            )
 	        );
 	    }
 	});
@@ -51562,6 +51619,8 @@
 	
 	var React = __webpack_require__(/*! react */ 3);
 	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 499);
+	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 502);
+	var PollAPI = __webpack_require__(/*! ../utils/PollAPI */ 501);
 	
 	//
 	function getPollDetails(_id) {
@@ -51571,12 +51630,47 @@
 	}
 	
 	//
+	var SelectOptions = React.createClass({
+	    displayName: 'SelectOptions',
+	
+	    //
+	    render: function render() {
+	        var row = [];
+	        this.props.options.forEach(function (option) {
+	            row.push(React.createElement(
+	                'option',
+	                { key: option._id, value: option.text },
+	                option.text
+	            ));
+	        });
+	        // For Customized Option
+	        row.push(React.createElement(
+	            'option',
+	            { key: 'custom', value: 'custom' },
+	            'I\'d like a custom option'
+	        ));
+	        return React.createElement(
+	            _reactBootstrap.FormControl,
+	            { componentClass: 'select', id: 'selectElem', placeholder: 'Choose an option...' },
+	            row
+	        );
+	    }
+	});
+	
+	//
 	var PollDetails = React.createClass({
 	    displayName: 'PollDetails',
 	
 	    //
 	    _onChange: function _onChange() {
 	        this.setState(getPollDetails(this.props.params.pollID));
+	    },
+	    //
+	    _handleSubmit: function _handleSubmit() {
+	        var selectElem = document.getElementById('selectElem');
+	        var optionSel = selectElem.options[selectElem.selectedIndex].value;
+	        // Vote
+	        PollAPI.vote(this.props.params.pollID, optionSel);
 	    },
 	    //
 	    getInitialState: function getInitialState() {
@@ -51592,19 +51686,48 @@
 	    },
 	    //
 	    render: function render() {
-	        debugger;
+	        var poll = this.state.poll[0];
 	        return React.createElement(
-	            _reactBootstrap.Jumbotron,
+	            _reactBootstrap.Grid,
 	            null,
 	            React.createElement(
-	                'h3',
+	                _reactBootstrap.Row,
 	                null,
-	                'Poll Title:'
-	            ),
-	            React.createElement(
-	                'p',
-	                null,
-	                this.state.poll[0].title
+	                React.createElement(
+	                    _reactBootstrap.Col,
+	                    { lg: 6 },
+	                    React.createElement(
+	                        _reactBootstrap.Jumbotron,
+	                        null,
+	                        React.createElement(
+	                            'h2',
+	                            null,
+	                            poll.title
+	                        ),
+	                        React.createElement('br', null),
+	                        React.createElement(
+	                            'h3',
+	                            null,
+	                            'I would like to go for...'
+	                        ),
+	                        React.createElement(
+	                            'form',
+	                            null,
+	                            React.createElement(SelectOptions, { options: poll.options }),
+	                            React.createElement('br', null),
+	                            React.createElement(
+	                                _reactBootstrap.Button,
+	                                { type: 'button', bsStyle: 'success', onClick: this._handleSubmit },
+	                                'Submit'
+	                            )
+	                        )
+	                    )
+	                ),
+	                React.createElement(
+	                    _reactBootstrap.Col,
+	                    { lg: 6 },
+	                    React.createElement(_reactBootstrap.Thumbnail, { href: '#', alt: '171x180', src: 'http://placehold.it/350x150' })
+	                )
 	            )
 	        );
 	    }

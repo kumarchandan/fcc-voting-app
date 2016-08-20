@@ -4,7 +4,8 @@ var React = require('react')
 var PollStore = require('../stores/PollStore')
 
 // Bootstrap elements
-import { ListGroup, ListGroupItem, Jumbotron } from 'react-bootstrap'
+import { ListGroup, ListGroupItem, Jumbotron, Grid, Row, Col } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
 
 //
 var List = React.createClass({
@@ -13,7 +14,11 @@ var List = React.createClass({
         var row = []
         if(this.props.myPolls && this.props.myPolls.length !== 0) {
             this.props.myPolls.forEach(function(poll) {
-                row.push(<ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>)
+                row.push(
+                    <LinkContainer to={'/polls/'+poll._id} key={poll._id}>
+                        <ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>
+                    </LinkContainer>
+                )
             })
             return (
                 <ListGroup>
@@ -54,11 +59,17 @@ var MyPolls = React.createClass({
     //
     render: function() {
         return (
-            <Jumbotron>
-                <h3>Your Polls</h3>
-                <br />
-                <List myPolls={this.state.myPolls} />
-            </Jumbotron>
+            <Grid>
+                <Row>
+                    <Col lg={12}>
+                        <Jumbotron>
+                            <h3>Your Polls</h3>
+                            <br />
+                            <List myPolls={this.state.myPolls} />
+                        </Jumbotron>
+                    </Col>
+                </Row>
+            </Grid>
         )
     }
 })
