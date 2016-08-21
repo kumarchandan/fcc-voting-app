@@ -11,6 +11,13 @@ var PollActions = {
             data: polls
         })
     },
+    // Get Poll
+    getPoll: function(poll) {
+        AppDispatcher.handleAction({
+            actionType: PollConstants.GET_POLL,
+            data: poll
+        })
+    },
     // Create Poll
     createPoll: function(newPoll) {
         AppDispatcher.handleAction({

@@ -5,12 +5,14 @@ var PollStore = require('../stores/PollStore')
 var PollActions = require('../actions/PollActions')
 var PollAPI = require('../utils/PollAPI')
 
+var Donut = require('./Donut.react')
+
 import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from 'react-bootstrap'
 
 //
 function getPollDetails(_id) {
     return {
-        poll: PollStore.getPollDetails(_id),
+        poll: PollStore.getPoll(_id),
         message: PollStore.getVoteMsg()
     }
 }
@@ -64,36 +66,40 @@ var PollDetails = React.createClass({
     },
     //
     render: function() {
+        debugger
         var poll = this.state.poll[0]
-        return (
-            <Grid>
-                <Row>
-                    <Col lg={6}>
-                        <div>
-                            { (this.state.message && this.state.message.msg)?
+        if(poll) {
+            return (
+                <Grid>
+                    <Row>
+                        <Col lg={6}>
+                            { (this.state.message) ?
                                 <Alert bsStyle='warning' onDismiss={this.handleAlertDismiss}>
-                                    <strong>{this.state.message.msg}</strong>
+                                    <strong>{this.state.message}</strong>
                                 </Alert>
                                 : null
                             }
-                        </div>
-                        <Jumbotron>
-                            <h2>{poll.title}</h2>
-                            <br />
-                            <h3>I would like to go for...</h3>
-                            <form>
-                                <SelectOptions options={poll.options} />
+                            <Jumbotron>
+                                <h2>{poll.title}</h2>
                                 <br />
-                                <Button type='button' bsStyle='success' onClick={this._handleSubmit}>Submit</Button>
-                            </form>
-                        </Jumbotron>
-                    </Col>
-                    <Col lg={6}>
-                        <Thumbnail href="#" alt="171x180" src="http://placehold.it/350x150" />
-                    </Col>
-                </Row>
-            </Grid>
-        )
+                                <h3>I would like to go for...</h3>
+                                <form>
+                                    <SelectOptions options={poll.options} />
+                                    <br />
+                                    <Button type='button' bsStyle='success' onClick={this._handleSubmit}>Submit</Button>
+                                </form>
+                            </Jumbotron>
+                        </Col>
+                        <Col lg={6}>
+                            <Donut options={poll.options} />
+                        </Col>
+                    </Row>
+                </Grid>
+            )
+        } else {
+            return null
+        }
+        
     }
 })
 

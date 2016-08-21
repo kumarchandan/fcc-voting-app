@@ -43,23 +43,37 @@ function vote(req, res, next) {
     var _id = req.body._id
     var _optionSel = req.body.optionSel
     //
+    //
     if(req.user && req.user._id) {
         var voterUserid = req.user._id
         Poll.find({ _id: _id, voterUserid: voterUserid })
             .then(function(poll) {
                 if(poll && poll.length !== 0) {
                     res.status(200).json({
-                        data: { msg: "You already voted! :)"}
+                        data: {
+                            msg: "You already Voted Pal! :)"
+                        }
                     })
                 } else {
                     // Update Vote with Userid
                     var query = { _id: _id, "options.text": _optionSel }
-                    Poll.update( query, { $inc: {"options.$.vote": 1 }, $push: { voterUserid: voterUserid } }, function(err, data) {
-                        if(err) new Error('Voting with Userid Failed')
-                        res.status(200).json({
-                            data: { msg: 'You voted successfully!'}
+                    Poll.update( query, { $inc: {"options.$.vote": 1 }, $push: { voterUserid: voterUserid } })
+                        .then(function(doc) {
+                            if(doc) {
+                                Poll.find({ _id: _id })
+                                    .then(function(poll) {
+                                        if(poll) {
+                                            res.status(200).json({
+                                                data: {
+                                                    poll: poll,
+                                                    msg: 'You Voted successfully!'
+                                                }
+                                               
+                                            })
+                                        }
+                                    })
+                            }
                         })
-                    })
                 }
             })
             .catch(function(err) {
@@ -72,18 +86,29 @@ function vote(req, res, next) {
                 if(poll && poll.length !== 0) {
                     // IP already Voted
                     res.status(200).json({
-                        data: { msg:'You already voted Pal! :)'}
+                        data: {
+                            msg: "You already Voted Pal! :)"
+                        }
                     })
                 } else {
                     // Update Vote with IP
                     var query = { _id: _id, "options.text": _optionSel }
-                    Poll.update(query, { $inc: {"options.$.vote": 1 }, $push: { voterIP: voterIP } }, function(err, data) {
-                        if(err) throw new Error('Voting with IP Failed')
-                        //
-                        res.status(200).json({
-                            data: { msg: 'You voted successfully!'}
+                    Poll.update(query, { $inc: {"options.$.vote": 1 }, $push: { voterIP: voterIP } })
+                        .then(function(doc) {
+                            if(doc) {
+                                Poll.find({ _id: _id })
+                                    .then(function(poll) {
+                                        if(poll) {
+                                            res.status(200).json({
+                                                data: {
+                                                    poll: poll,
+                                                    msg: 'You Voted successfully!'
+                                                }
+                                            })
+                                        }
+                                    })
+                            }
                         })
-                    })
                 }
             })
             .catch(function(err) {

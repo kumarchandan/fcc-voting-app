@@ -11,6 +11,7 @@ var _ = require('underscore')
 var _polls = []
 var _myPolls = []
 var _voteMsg = null
+var _poll = []
 
 // All Polls
 function loadPolls(data) {
@@ -29,6 +30,11 @@ function addPoll(data) {
 function voteMsg(data) {
     _voteMsg = data
 }
+//
+function loadPoll(data) {
+    debugger
+    _poll = data
+}
 
 
 // PollStore Instance
@@ -44,20 +50,22 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
     },
     //
     getMyPolls: function() {
+        debugger
         if(_myPolls && _myPolls.length === 0) {
             PollAPI.getMyPolls()
         }
         return _myPolls
     },
     //
-    getPollDetails: function(_id) {
-        if(_polls && _polls.length !== 0) {
-            var data = _polls.filter(function(poll) {
-                return poll._id === _id
-            })
-            return data
+    getPoll: function(_id) {
+        debugger
+        if((_poll && _poll.length === 0) || _poll[0]._id !== _id) {
+            //PollAPI.getPoll(_id)
+            PollAPI.getPoll(_id)
+            return true
+        } else {
+            return _poll
         }
-        return null
     },
     //
     emitChange: function() {
@@ -92,8 +100,16 @@ AppDispatcher.register(function(payload) {
             PollStore.emitChange()
             break
         case PollConstants.VOTE:
-            voteMsg(action.data)        // Vote Message
+            voteMsg(action.data.msg)        // Vote Message
+            if(action.data.poll) {
+                loadPoll(action.data.poll)
+            }
             PollStore.emitChange()
+            break
+        case PollConstants.GET_POLL:
+            loadPoll(action.data)
+            PollStore.emitChange()
+            break
         default:
             return true
     }

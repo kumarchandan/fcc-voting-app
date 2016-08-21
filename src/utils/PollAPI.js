@@ -30,12 +30,20 @@ module.exports = {
             PollActions.getMyPolls(res.body.data)
         })
     },
+    //
+    getPoll: function(_id) {
+        request.get('api/poll?_id='+_id).end(function(err, res) {
+            debugger
+            if(err) throw err
+            //
+            PollActions.getPoll(res.body.data)
+        })
+    },
     // Vote
     vote: function(_id, optionSel) {
         request.post('api/vote').send({ _id: _id, optionSel: optionSel }).end(function(err, res) {
             if(err) throw err
             //
-            res.body.data
             PollActions.vote(res.body.data)
         })
     }

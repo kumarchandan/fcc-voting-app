@@ -18,6 +18,26 @@ function getPolls(req, res, next) {
         
     })
 }
+// Get Poll
+function getPoll(req, res, next) {
+    //
+    var _id = req.query._id
+    Poll.find({ _id: _id })
+        .then(function(poll) {
+            if(poll && poll.length !== 0) {
+                res.status(200).json({
+                    data: poll
+                })
+            } else {
+                res.status(200).json({
+                    data: null
+                })
+            }
+        })
+        .catch(function(err) {
+            throw err
+        })
+}
 
 // Get User Specific Polls
 function getMyPolls(req, res, next) {
@@ -44,5 +64,6 @@ function getMyPolls(req, res, next) {
 
 module.exports = {
     getPolls: getPolls,
-    getMyPolls: getMyPolls
+    getMyPolls: getMyPolls,
+    getPoll: getPoll
 }

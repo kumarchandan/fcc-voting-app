@@ -10,6 +10,7 @@ var check = require('../manager/check')
 // GET
 router.get('/polls', query.getPolls)
 router.get('/mypolls', query.getMyPolls)
+router.get('/poll', query.getPoll)
 
 // POST
 router.post('/create', update.createPoll)
