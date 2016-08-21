@@ -10,6 +10,7 @@ var passport = require('passport')
 var Strategy = require('passport-twitter').Strategy
 var session = require('express-session')
 var twitAuth = require('./config/auth').twitterAuth
+var flash = require('connect-flash')
 
 // database stuff
 var mongoURL = require('./config/database').mongoURL
@@ -92,6 +93,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
   next()
 })
+//
+app.use(flash())
 
 
 // routes path

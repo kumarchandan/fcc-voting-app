@@ -26,11 +26,10 @@ var PollActions = {
         })
     },
     // Vote
-    vote: function(pollID, optionSel) {
+    vote: function(msg) {
         AppDispatcher.handleAction({
             actionType: PollConstants.VOTE,
-            pollID: pollID,
-            optionSel: optionSel
+            data: msg
         })
     }
 }

@@ -5,12 +5,13 @@ var PollStore = require('../stores/PollStore')
 var PollActions = require('../actions/PollActions')
 var PollAPI = require('../utils/PollAPI')
 
-import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl } from 'react-bootstrap'
+import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from 'react-bootstrap'
 
 //
 function getPollDetails(_id) {
     return {
-        poll: PollStore.getPollDetails(_id)
+        poll: PollStore.getPollDetails(_id),
+        message: PollStore.getVoteMsg()
     }
 }
 
@@ -56,12 +57,26 @@ var PollDetails = React.createClass({
         PollStore.removeChangeListener(this._onChange)
     },
     //
+    handleAlertDismiss: function() {
+        this.setState({
+            message: null
+        })
+    },
+    //
     render: function() {
         var poll = this.state.poll[0]
         return (
             <Grid>
                 <Row>
                     <Col lg={6}>
+                        <div>
+                            { (this.state.message && this.state.message.msg)?
+                                <Alert bsStyle='warning' onDismiss={this.handleAlertDismiss}>
+                                    <strong>{this.state.message.msg}</strong>
+                                </Alert>
+                                : null
+                            }
+                        </div>
                         <Jumbotron>
                             <h2>{poll.title}</h2>
                             <br />

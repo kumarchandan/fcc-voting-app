@@ -10,6 +10,7 @@ var _ = require('underscore')
 // Private data
 var _polls = []
 var _myPolls = []
+var _voteMsg = null
 
 // All Polls
 function loadPolls(data) {
@@ -19,17 +20,24 @@ function loadPolls(data) {
 function loadMyPolls(data) {
     _myPolls = data
 }
-
 // Add New Poll
 function addPoll(data) {
     _polls.push(data)
     _myPolls.push(data)
+}
+//
+function voteMsg(data) {
+    _voteMsg = data
 }
 
 
 // PollStore Instance
 // Extend with EventEmitter.prototype to add event capabilities
 var PollStore = _.extend({}, EventEmitter.prototype, {
+    //
+    getVoteMsg: function() {
+        return _voteMsg
+    },
     //
     getPolls: function() {
         return _polls
@@ -83,6 +91,9 @@ AppDispatcher.register(function(payload) {
             loadMyPolls(action.data)    // loadMyPolls
             PollStore.emitChange()
             break
+        case PollConstants.VOTE:
+            voteMsg(action.data)        // Vote Message
+            PollStore.emitChange()
         default:
             return true
     }

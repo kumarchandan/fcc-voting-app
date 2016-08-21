@@ -2,18 +2,20 @@
 
 var express = require('express')
 var router = express.Router()
+//
 var query = require('../manager/query')
-var checkAuth = require('../manager/checkAuth')
+var update = require('../manager/update')
+var check = require('../manager/check')
 
 // GET
 router.get('/polls', query.getPolls)
 router.get('/mypolls', query.getMyPolls)
 
 // POST
-router.post('/create', query.createPoll)
-router.post('/vote', query.vote)
+router.post('/create', update.createPoll)
+router.post('/vote', update.vote)
 
 // CHECK
-router.get('/auth', checkAuth.isAuthenticated)
+router.get('/auth', check.isAuthenticated)
 
 module.exports = router

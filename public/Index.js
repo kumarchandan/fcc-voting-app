@@ -49634,6 +49634,7 @@
 	// Private data
 	var _polls = [];
 	var _myPolls = [];
+	var _voteMsg = null;
 	
 	// All Polls
 	function loadPolls(data) {
@@ -49643,16 +49644,23 @@
 	function loadMyPolls(data) {
 	    _myPolls = data;
 	}
-	
 	// Add New Poll
 	function addPoll(data) {
 	    _polls.push(data);
 	    _myPolls.push(data);
 	}
+	//
+	function voteMsg(data) {
+	    _voteMsg = data;
+	}
 	
 	// PollStore Instance
 	// Extend with EventEmitter.prototype to add event capabilities
 	var PollStore = _.extend({}, EventEmitter.prototype, {
+	    //
+	    getVoteMsg: function getVoteMsg() {
+	        return _voteMsg;
+	    },
 	    //
 	    getPolls: function getPolls() {
 	        return _polls;
@@ -49706,6 +49714,9 @@
 	            loadMyPolls(action.data); // loadMyPolls
 	            PollStore.emitChange();
 	            break;
+	        case PollConstants.VOTE:
+	            voteMsg(action.data); // Vote Message
+	            PollStore.emitChange();
 	        default:
 	            return true;
 	    }
@@ -49772,7 +49783,6 @@
 	        request.get('api/mypolls').end(function (err, res) {
 	            if (err) throw err;
 	            //
-	            console.log('my polls ', res.body.data);
 	            PollActions.getMyPolls(res.body.data);
 	        });
 	    },
@@ -49781,6 +49791,8 @@
 	        request.post('api/vote').send({ _id: _id, optionSel: optionSel }).end(function (err, res) {
 	            if (err) throw err;
 	            //
+	            res.body.data;
+	            PollActions.vote(res.body.data);
 	        });
 	    }
 	};
@@ -49822,11 +49834,10 @@
 	        });
 	    },
 	    // Vote
-	    vote: function vote(pollID, optionSel) {
+	    vote: function vote(msg) {
 	        AppDispatcher.handleAction({
 	            actionType: PollConstants.VOTE,
-	            pollID: pollID,
-	            optionSel: optionSel
+	            data: msg
 	        });
 	    }
 	};
@@ -51625,7 +51636,8 @@
 	//
 	function getPollDetails(_id) {
 	    return {
-	        poll: PollStore.getPollDetails(_id)
+	        poll: PollStore.getPollDetails(_id),
+	        message: PollStore.getVoteMsg()
 	    };
 	}
 	
@@ -51685,6 +51697,12 @@
 	        PollStore.removeChangeListener(this._onChange);
 	    },
 	    //
+	    handleAlertDismiss: function handleAlertDismiss() {
+	        this.setState({
+	            message: null
+	        });
+	    },
+	    //
 	    render: function render() {
 	        var poll = this.state.poll[0];
 	        return React.createElement(
@@ -51696,6 +51714,19 @@
 	                React.createElement(
 	                    _reactBootstrap.Col,
 	                    { lg: 6 },
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        this.state.message && this.state.message.msg ? React.createElement(
+	                            _reactBootstrap.Alert,
+	                            { bsStyle: 'warning', onDismiss: this.handleAlertDismiss },
+	                            React.createElement(
+	                                'strong',
+	                                null,
+	                                this.state.message.msg
+	                            )
+	                        ) : null
+	                    ),
 	                    React.createElement(
 	                        _reactBootstrap.Jumbotron,
 	                        null,

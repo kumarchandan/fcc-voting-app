@@ -27,7 +27,6 @@ module.exports = {
         request.get('api/mypolls').end(function(err, res) {
             if(err) throw err
             //
-            console.log('my polls ', res.body.data)
             PollActions.getMyPolls(res.body.data)
         })
     },
@@ -36,6 +35,8 @@ module.exports = {
         request.post('api/vote').send({ _id: _id, optionSel: optionSel }).end(function(err, res) {
             if(err) throw err
             //
+            res.body.data
+            PollActions.vote(res.body.data)
         })
     }
 }
