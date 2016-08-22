@@ -33,7 +33,6 @@ module.exports = {
     //
     getPoll: function(_id) {
         request.get('api/poll?_id='+_id).end(function(err, res) {
-            debugger
             if(err) throw err
             //
             PollActions.getPoll(res.body.data)

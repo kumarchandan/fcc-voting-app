@@ -57,19 +57,33 @@
 	var ReactDOM = __webpack_require__(/*! react-dom */ 96);
 	
 	var IndexPage = __webpack_require__(/*! ./components/Index.react */ 235);
-	var Polls = __webpack_require__(/*! ./components/Polls.react */ 498);
-	var NewPoll = __webpack_require__(/*! ./components/NewPoll.react */ 508);
 	var MyPolls = __webpack_require__(/*! ./components/MyPolls.react */ 509);
+	var NewPoll = __webpack_require__(/*! ./components/NewPoll.react */ 508);
+	var Polls = __webpack_require__(/*! ./components/Polls.react */ 498);
 	var PollDetails = __webpack_require__(/*! ./components/PollDetails.react */ 510);
 	
 	// Utilities
-	var PollAPI = __webpack_require__(/*! ./utils/PollAPI */ 501);
 	var AuthAPI = __webpack_require__(/*! ./utils/AuthAPI */ 586);
+	var PollAPI = __webpack_require__(/*! ./utils/PollAPI */ 501);
 	
 	// Load data
 	PollAPI.getPolls();
-	// Check Session If User is Logged in
+	// Check session if user is logged in
 	AuthAPI.isAuthenticated();
+	
+	// 
+	function requireAuth(nextState, replace, done) {
+	    //
+	    AuthAPI.isLoggedIn(function (result) {
+	        if (!result) {
+	            replace({
+	                pathname: '/polls',
+	                state: { nextPathname: nextState.location.pathname }
+	            });
+	            done();
+	        }
+	    });
+	}
 	
 	// Home Page
 	ReactDOM.render(React.createElement(
@@ -80,8 +94,8 @@
 	        { path: '/', component: IndexPage },
 	        React.createElement(_reactRouter.IndexRoute, { component: Polls }),
 	        React.createElement(_reactRouter.Route, { path: '/polls', component: Polls }),
-	        React.createElement(_reactRouter.Route, { path: '/mypolls', component: MyPolls }),
-	        React.createElement(_reactRouter.Route, { path: '/newpoll', component: NewPoll }),
+	        React.createElement(_reactRouter.Route, { path: '/mypolls', component: MyPolls, onEnter: requireAuth }),
+	        React.createElement(_reactRouter.Route, { path: '/newpoll', component: NewPoll, onEnter: requireAuth }),
 	        React.createElement(_reactRouter.Route, { path: '/polls/:pollID', component: PollDetails })
 	    )
 	), document.getElementById('content'));
@@ -49666,7 +49680,7 @@
 	}
 	//
 	function loadPoll(data) {
-	    debugger;
+	
 	    _poll = data;
 	}
 	
@@ -49675,7 +49689,9 @@
 	var PollStore = _.extend({}, EventEmitter.prototype, {
 	    //
 	    getVoteMsg: function getVoteMsg() {
-	        return _voteMsg;
+	        var temp = _voteMsg;
+	        _voteMsg = null;
+	        return temp;
 	    },
 	    //
 	    getPolls: function getPolls() {
@@ -49683,7 +49699,6 @@
 	    },
 	    //
 	    getMyPolls: function getMyPolls() {
-	        debugger;
 	        if (_myPolls && _myPolls.length === 0) {
 	            PollAPI.getMyPolls();
 	        }
@@ -49691,7 +49706,6 @@
 	    },
 	    //
 	    getPoll: function getPoll(_id) {
-	        debugger;
 	        if (_poll && _poll.length === 0 || _poll[0]._id !== _id) {
 	            //PollAPI.getPoll(_id)
 	            PollAPI.getPoll(_id);
@@ -49816,7 +49830,6 @@
 	    //
 	    getPoll: function getPoll(_id) {
 	        request.get('api/poll?_id=' + _id).end(function (err, res) {
-	            debugger;
 	            if (err) throw err;
 	            //
 	            PollActions.getPoll(res.body.data);
@@ -51748,7 +51761,6 @@
 	    },
 	    //
 	    render: function render() {
-	        debugger;
 	        var poll = this.state.poll[0];
 	        if (poll) {
 	            return React.createElement(
@@ -77121,6 +77133,16 @@
 	            console.log('isAuthenticated ', res.body.data);
 	            //
 	            AuthActions.isAuthenticated(res.body.data);
+	        });
+	    },
+	    isLoggedIn: function isLoggedIn(done) {
+	        request.get('/api/auth').end(function (err, res) {
+	            if (err) throw err;
+	            if (res.body.data) {
+	                done(true);
+	            } else {
+	                done(false);
+	            }
 	        });
 	    }
 	};

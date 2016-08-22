@@ -32,7 +32,7 @@ function voteMsg(data) {
 }
 //
 function loadPoll(data) {
-    debugger
+
     _poll = data
 }
 
@@ -42,7 +42,9 @@ function loadPoll(data) {
 var PollStore = _.extend({}, EventEmitter.prototype, {
     //
     getVoteMsg: function() {
-        return _voteMsg
+        var temp = _voteMsg
+        _voteMsg = null
+        return temp
     },
     //
     getPolls: function() {
@@ -50,7 +52,6 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
     },
     //
     getMyPolls: function() {
-        debugger
         if(_myPolls && _myPolls.length === 0) {
             PollAPI.getMyPolls()
         }
@@ -58,7 +59,6 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
     },
     //
     getPoll: function(_id) {
-        debugger
         if((_poll && _poll.length === 0) || _poll[0]._id !== _id) {
             //PollAPI.getPoll(_id)
             PollAPI.getPoll(_id)

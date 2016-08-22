@@ -66,7 +66,6 @@ var PollDetails = React.createClass({
     },
     //
     render: function() {
-        debugger
         var poll = this.state.poll[0]
         if(poll) {
             return (

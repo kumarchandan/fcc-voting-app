@@ -71,8 +71,10 @@ function vote(req, res, next) {
                                                
                                             })
                                         }
+                                        return null     // to suppress warning: http://bluebirdjs.com/docs/warning-explanations.html
                                     })
                             }
+                            return null
                         })
                 }
             })
@@ -106,8 +108,10 @@ function vote(req, res, next) {
                                                 }
                                             })
                                         }
+                                        return null
                                     })
                             }
+                            return null
                         })
                 }
             })
