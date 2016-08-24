@@ -23,7 +23,7 @@ var User = require('./models/user')
 passport.use(new Strategy({
   consumerKey: twitAuth.consumerKey || process.env.TWEET_API_KEY,
   consumerSecret: twitAuth.consumerSecret || process.env.TWEET_API_SEC,
-  callbackURL: twitAuth.callbackURL
+  callbackURL: twitAuth.callbackURL || process.env.CALL_BACK_URL
 },
 function(token, tokenSecret, profile, done) {
   process.nextTick(function() {

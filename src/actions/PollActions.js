@@ -44,6 +44,14 @@ var PollActions = {             // Library of helper methods - Action Creators
         })
         PollAPI.vote(pollID, optionSel)
     },
+    // Custom Vote
+    customVote: function(pollID, optionSel) {
+        AppDispatcher.handleAction({
+            actionType: PollConstants.CUSTOM_VOTE
+        })
+        //
+        PollAPI.customVote(pollID, optionSel)
+    },
     // Remove
     removePoll: function(pollID) {
         AppDispatcher.handleAction({

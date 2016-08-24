@@ -27,17 +27,23 @@ var NewPoll = React.createClass({
     createPoll: function() {
         //
         var title = this.refs.title.value
-        var options = this.refs.options.value.split(',')
-        console.log(title, options)
-        var poll = {
-            title: title,
-            options: options
+        var options = this.refs.options.value
+        if(title !== '' && options !== '') {
+            var newOptions = options.replace(/^\s+|\s+$/g,"").split(/\s*,\s*/)     // Remove White Spaces and Create Array
+            // Remove duplicated from options
+            newOptions = Array.from(new Set(newOptions))
+            var poll = {
+                title: title,
+                options: newOptions
+            }
+            //
+            PollActions.createPoll(poll)
+            // Navigate to Home
+            this.context.router.push('/')
+        } else {
+            alert('You forgot to enter title or options :)')
+            return true
         }
-        //
-        PollActions.createPoll(poll)
-        // Navigate to Home
-        // this.props.history.push('/')        // get new way of transition - this is deprecated
-        this.context.router.push('/')
     },
     render: function() {
         //
@@ -49,10 +55,10 @@ var NewPoll = React.createClass({
                             <h3>Create New Poll</h3>
                             <br />
                             <form>
-                                <input id="newTitle" ref='title' type="text" style={inpStyle} placeholder="Enter poll title..." />
+                                <input id="newTitle" ref='title' type="text" style={inpStyle} placeholder="Enter poll title..." required />
                                 <br />
                                 <br />
-                                <textarea id="newOptions" ref='options' style={taStyle} placeholder='Your options [comma seperated]' />
+                                <textarea id="newOptions" ref='options' style={taStyle} placeholder='Your options [comma seperated]' required></textarea>
                                 <br />
                                 <br />
                                 <Button bsStyle="success" onClick={this.createPoll}>Submit</Button>

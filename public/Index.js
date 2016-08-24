@@ -51440,7 +51440,14 @@
 	            PollStore.emitChange();
 	            break;
 	        case PollConstants.VOTE_RESPONSE:
-	            voteMsg(action.data.msg); // Vote Message
+	            voteMsg(action.data.msg); // Vote
+	            if (action.data.poll) {
+	                loadPoll(action.data.poll);
+	            }
+	            PollStore.emitChange();
+	            break;
+	        case PollConstants.CUSTOM_VOTE_RESPONSE:
+	            voteMsg(action.data.msg); // Custom Vote
 	            if (action.data.poll) {
 	                loadPoll(action.data.poll);
 	            }
@@ -51478,6 +51485,8 @@
 	    CREATE_POLL_RESPONSE: null,
 	    VOTE: null,
 	    VOTE_RESPONSE: null,
+	    CUSTOM_VOTE: null,
+	    CUSTOM_VOTE_RESPONSE: null,
 	    REMOVE: null,
 	    REMOVE_RESPONSE: null
 	});
@@ -51493,7 +51502,7 @@
 	
 	// PollAPI.js
 	
-	var PollServerActions = __webpack_require__(/*! ../actions/PollServerActions */ 510);
+	var PollServerActions = __webpack_require__(/*! ../actions/PollServerActions */ 509);
 	var request = __webpack_require__(/*! superagent */ 492);
 	
 	// Utility to load data first time
@@ -51539,6 +51548,14 @@
 	            PollServerActions.vote(res.body.data);
 	        });
 	    },
+	    // Custom Vote
+	    customVote: function customVote(_id, optionSel) {
+	        request.post('api/customvote').send({ _id: _id, optionSel: optionSel }).end(function (err, res) {
+	            if (err) throw err;
+	            //
+	            PollServerActions.customVote(res.body.data);
+	        });
+	    },
 	    // Remove Poll
 	    removePoll: function removePoll(_id) {
 	        var self = this;
@@ -51552,10 +51569,62 @@
 	};
 	
 	// Circular dependency - so PollActions lies here ;)
-	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 509);
+	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 510);
 
 /***/ },
 /* 509 */
+/*!******************************************!*\
+  !*** ./src/actions/PollServerActions.js ***!
+  \******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// PollServerActions.js
+	
+	//
+	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 498);
+	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 507);
+	
+	var PollServerActions = {
+	    // Create Poll
+	    createPoll: function createPoll(newPoll) {
+	        AppDispatcher.handleServerAction({
+	            actionType: PollConstants.CREATE_POLL_RESPONSE,
+	            data: newPoll
+	        });
+	    },
+	    // Vote
+	    vote: function vote(message) {
+	        //
+	        AppDispatcher.handleServerAction({
+	            actionType: PollConstants.VOTE_RESPONSE,
+	            data: message
+	        });
+	    },
+	    // Custom Vote
+	    customVote: function customVote(message) {
+	        //
+	        AppDispatcher.handleServerAction({
+	            actionType: PollConstants.CUSTOM_VOTE_RESPONSE,
+	            data: message
+	        });
+	    },
+	    // Remove
+	    removePoll: function removePoll(pollID) {
+	        //
+	        AppDispatcher.handleServerAction({
+	            actionType: PollConstants.REMOVE_RESPONSE,
+	            data: pollID
+	        });
+	    }
+	};
+	
+	//
+	module.exports = PollServerActions;
+
+/***/ },
+/* 510 */
 /*!************************************!*\
   !*** ./src/actions/PollActions.js ***!
   \************************************/
@@ -51609,6 +51678,14 @@
 	        });
 	        PollAPI.vote(pollID, optionSel);
 	    },
+	    // Custom Vote
+	    customVote: function customVote(pollID, optionSel) {
+	        AppDispatcher.handleAction({
+	            actionType: PollConstants.CUSTOM_VOTE
+	        });
+	        //
+	        PollAPI.customVote(pollID, optionSel);
+	    },
 	    // Remove
 	    removePoll: function removePoll(pollID) {
 	        AppDispatcher.handleAction({
@@ -51620,50 +51697,6 @@
 	};
 	
 	module.exports = PollActions;
-
-/***/ },
-/* 510 */
-/*!******************************************!*\
-  !*** ./src/actions/PollServerActions.js ***!
-  \******************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// PollServerActions.js
-	
-	//
-	var AppDispatcher = __webpack_require__(/*! ../dispatcher/AppDispatcher */ 498);
-	var PollConstants = __webpack_require__(/*! ../constants/PollConstants */ 507);
-	
-	var PollServerActions = {
-	    // Create Poll
-	    createPoll: function createPoll(newPoll) {
-	        AppDispatcher.handleServerAction({
-	            actionType: PollConstants.CREATE_POLL_RESPONSE,
-	            data: newPoll
-	        });
-	    },
-	    // Vote
-	    vote: function vote(message) {
-	        //
-	        AppDispatcher.handleServerAction({
-	            actionType: PollConstants.VOTE_RESPONSE,
-	            data: message
-	        });
-	    },
-	    // Remove
-	    removePoll: function removePoll(pollID) {
-	        //
-	        AppDispatcher.handleServerAction({
-	            actionType: PollConstants.REMOVE_RESPONSE,
-	            data: pollID
-	        });
-	    }
-	};
-	
-	//
-	module.exports = PollServerActions;
 
 /***/ },
 /* 511 */
@@ -51681,7 +51714,7 @@
 	// NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
 	
 	var React = __webpack_require__(/*! react */ 3);
-	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 509);
+	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 510);
 	
 	// Bootstrap elements
 	
@@ -51707,17 +51740,23 @@
 	    createPoll: function createPoll() {
 	        //
 	        var title = this.refs.title.value;
-	        var options = this.refs.options.value.split(',');
-	        console.log(title, options);
-	        var poll = {
-	            title: title,
-	            options: options
-	        };
-	        //
-	        PollActions.createPoll(poll);
-	        // Navigate to Home
-	        // this.props.history.push('/')        // get new way of transition - this is deprecated
-	        this.context.router.push('/');
+	        var options = this.refs.options.value;
+	        if (title !== '' && options !== '') {
+	            var newOptions = options.replace(/^\s+|\s+$/g, "").split(/\s*,\s*/); // Remove White Spaces and Create Array
+	            // Remove duplicated from options
+	            newOptions = Array.from(new Set(newOptions));
+	            var poll = {
+	                title: title,
+	                options: newOptions
+	            };
+	            //
+	            PollActions.createPoll(poll);
+	            // Navigate to Home
+	            this.context.router.push('/');
+	        } else {
+	            alert('You forgot to enter title or options :)');
+	            return true;
+	        }
 	    },
 	    render: function render() {
 	        //
@@ -51742,10 +51781,10 @@
 	                        React.createElement(
 	                            'form',
 	                            null,
-	                            React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...' }),
+	                            React.createElement('input', { id: 'newTitle', ref: 'title', type: 'text', style: inpStyle, placeholder: 'Enter poll title...', required: true }),
 	                            React.createElement('br', null),
 	                            React.createElement('br', null),
-	                            React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle, placeholder: 'Your options [comma seperated]' }),
+	                            React.createElement('textarea', { id: 'newOptions', ref: 'options', style: taStyle, placeholder: 'Your options [comma seperated]', required: true }),
 	                            React.createElement('br', null),
 	                            React.createElement('br', null),
 	                            React.createElement(
@@ -51890,17 +51929,27 @@
 	
 	var AuthStore = __webpack_require__(/*! ../stores/AuthStore */ 490);
 	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 506);
-	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 509);
+	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 510);
 	
 	var Donut = __webpack_require__(/*! ./Donut.react */ 514);
 	
 	//
 	function getPollDetails(_id) {
 	    return {
+	        custom: false,
 	        poll: PollStore.getPoll(_id),
 	        message: PollStore.getVoteMsg(),
 	        owner: AuthStore.getAuthData() // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
 	    };
+	}
+	
+	// User chooses Custom option
+	function customOptionSelected(event) {
+	    if (event.target.value === 'custom') {
+	        this.setState({
+	            custom: true
+	        });
+	    }
 	}
 	
 	//
@@ -51925,7 +51974,7 @@
 	        ));
 	        return React.createElement(
 	            _reactBootstrap.FormControl,
-	            { componentClass: 'select', id: 'selectElem', placeholder: 'Choose an option...' },
+	            { componentClass: 'select', id: 'selectElem', onChange: customOptionSelected.bind(this.props.refer), placeholder: 'Choose an option...' },
 	            row
 	        );
 	    }
@@ -51947,8 +51996,29 @@
 	    _handleSubmit: function _handleSubmit() {
 	        var selectElem = document.getElementById('selectElem');
 	        var optionSel = selectElem.options[selectElem.selectedIndex].value;
-	        // Vote
-	        PollActions.vote(this.props.params.pollID, optionSel);
+	        //
+	        if (optionSel === 'custom') {
+	            // Custom Vote
+	            optionSel = this.refs.customOption.value;
+	            if (optionSel === '') {
+	                alert('You forgot to write your option Pal! :)');
+	                return false;
+	            }
+	            optionSel = optionSel.trim(); // trim() - remove whitespaces from String
+	            // Notify if Custom Option already Available
+	            var existingOptions = this.state.poll[0].options;
+	            for (var i = 0; i < existingOptions.length; i++) {
+	                if (existingOptions[i].text === optionSel) {
+	                    alert('Option is already Available Pal! :)');
+	                    return false;
+	                }
+	            }
+	            // Vote with Custom Option
+	            PollActions.customVote(this.props.params.pollID, optionSel);
+	        } else {
+	            // Vote with Available Options
+	            PollActions.vote(this.props.params.pollID, optionSel);
+	        }
 	    },
 	    //
 	    getInitialState: function getInitialState() {
@@ -52033,7 +52103,18 @@
 	                            React.createElement(
 	                                'form',
 	                                null,
-	                                React.createElement(SelectOptions, { options: poll.options }),
+	                                React.createElement(SelectOptions, { options: poll.options, refer: this }),
+	                                React.createElement('br', null),
+	                                this.state.custom ? React.createElement(
+	                                    'div',
+	                                    null,
+	                                    React.createElement(
+	                                        'h3',
+	                                        null,
+	                                        'Vote with my option:'
+	                                    ),
+	                                    React.createElement('input', { ref: 'customOption', type: 'text', required: true })
+	                                ) : null,
 	                                React.createElement('br', null),
 	                                React.createElement(
 	                                    _reactBootstrap.Button,

@@ -20,6 +20,14 @@ var PollServerActions = {
             data: message
         })
     },
+    // Custom Vote
+    customVote: function(message) {
+        //
+        AppDispatcher.handleServerAction({
+            actionType: PollConstants.CUSTOM_VOTE_RESPONSE,
+            data: message
+        })
+    },
     // Remove
     removePoll: function(pollID) {
         //

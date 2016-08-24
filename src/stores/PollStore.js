@@ -145,7 +145,14 @@ AppDispatcher.register(function(payload) {
             PollStore.emitChange()
             break
         case PollConstants.VOTE_RESPONSE:
-            voteMsg(action.data.msg)        // Vote Message
+            voteMsg(action.data.msg)        // Vote
+            if(action.data.poll) {
+                loadPoll(action.data.poll)
+            }
+            PollStore.emitChange()
+            break
+        case PollConstants.CUSTOM_VOTE_RESPONSE:
+            voteMsg(action.data.msg)        // Custom Vote
             if(action.data.poll) {
                 loadPoll(action.data.poll)
             }

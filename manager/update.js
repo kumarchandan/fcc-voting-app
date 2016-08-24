@@ -38,12 +38,58 @@ function createPoll(req, res, next) {
     })
 }
 
+// Custom Vote
+function customVote(req, res, next) {
+    //
+    var _id = req.body._id
+    var _optionSel = req.body.optionSel
+    //
+    if(req.user && req.user._id) {
+        var voterUserid = req.user._id
+        Poll.find({ _id: _id, voterUserid: voterUserid })
+            .then(function(poll) {
+                if(poll && poll.length !== 0) {
+                    res.status(200).json({
+                        data: {
+                            msg: "You already Voted Pal! :)"
+                        }
+                    })
+                } else {
+                    // Update custom vote with Userid
+                    var query = { _id: _id }
+                    var option = {
+                        text: _optionSel,
+                        vote: 1
+                    }
+                    Poll.update( query, { $push: { options: option, voterUserid: voterUserid }})
+                        .then(function(doc) {
+                            if(doc) {
+                                Poll.find({ _id: _id })
+                                    .then(function(poll) {
+                                        if(poll) {
+                                            res.status(200).json({
+                                                data: {
+                                                    poll: poll,
+                                                    msg: 'You Voted successfully!'
+                                                }
+                                            })
+                                        }
+                                    })
+                            }
+                        })
+                }
+            })
+            .catch(function(err) {
+                throw err
+            })
+    }
+}
+
 // Vote
 function vote(req, res, next) {
     //
     var _id = req.body._id
     var _optionSel = req.body.optionSel
-    //
     //
     if(req.user && req.user._id) {
         var voterUserid = req.user._id
@@ -140,5 +186,6 @@ function removePoll(req, res, next) {
 module.exports = {
     createPoll: createPoll,
     vote: vote,
+    customVote: customVote,
     removePoll: removePoll
 }

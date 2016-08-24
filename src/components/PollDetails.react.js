@@ -13,9 +13,19 @@ import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from
 //
 function getPollDetails(_id) {
     return {
+        custom: false,
         poll: PollStore.getPoll(_id),
         message: PollStore.getVoteMsg(),
         owner: AuthStore.getAuthData()      // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
+    }
+}
+
+// User chooses Custom option
+function customOptionSelected(event) {
+    if(event.target.value === 'custom') {
+        this.setState({
+            custom: true
+        })
     }
 }
 
@@ -30,7 +40,7 @@ var SelectOptions = React.createClass({
         // For Customized Option
         row.push(<option key='custom' value='custom'>I'd like a custom option</option>)
         return (
-            <FormControl componentClass="select" id='selectElem' placeholder="Choose an option...">{row}</FormControl>
+            <FormControl componentClass="select" id='selectElem' onChange={customOptionSelected.bind(this.props.refer)} placeholder="Choose an option...">{row}</FormControl>
         )
     }
 })
@@ -49,8 +59,31 @@ var PollDetails = React.createClass({
     _handleSubmit: function() {
         var selectElem = document.getElementById('selectElem')
         var optionSel = selectElem.options[selectElem.selectedIndex].value
-        // Vote
-        PollActions.vote(this.props.params.pollID, optionSel)
+        //
+        if(optionSel === 'custom') {
+            // Custom Vote
+            optionSel = this.refs.customOption.value
+            if(optionSel === '') {
+                alert('You forgot to write your option Pal! :)')
+                return false
+            }
+            optionSel = optionSel.trim()         // trim() - remove whitespaces from String
+            // Notify if Custom Option already Available
+            var existingOptions = this.state.poll[0].options
+            for(var i = 0; i < existingOptions.length; i++) {
+                if(existingOptions[i].text === optionSel) {
+                    alert('Option is already Available Pal! :)')
+                    return false
+                }
+            }
+            // Vote with Custom Option
+            PollActions.customVote(this.props.params.pollID, optionSel)
+
+        } else {
+            // Vote with Available Options
+            PollActions.vote(this.props.params.pollID, optionSel)
+        }
+        
     },
     //
     getInitialState: function() {
@@ -114,7 +147,14 @@ var PollDetails = React.createClass({
                                 <br />
                                 <h3>I would like to go for...</h3>
                                 <form>
-                                    <SelectOptions options={poll.options} />
+                                    <SelectOptions options={poll.options} refer={this} />
+                                    <br />
+                                    {this.state.custom ?
+                                        <div>
+                                            <h3>Vote with my option:</h3>
+                                            <input ref='customOption' type="text" required />
+                                        </div>
+                                        : null}
                                     <br />
                                     <Button type='button' bsStyle='success' onClick={this._handleSubmit}>Submit</Button>
                                 </form>

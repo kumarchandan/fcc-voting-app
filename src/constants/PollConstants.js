@@ -10,6 +10,8 @@ module.exports = keyMirror({
     CREATE_POLL_RESPONSE: null,
     VOTE: null,
     VOTE_RESPONSE: null,
+    CUSTOM_VOTE: null,
+    CUSTOM_VOTE_RESPONSE: null,
     REMOVE: null,
     REMOVE_RESPONSE: null
 })

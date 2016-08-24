@@ -46,6 +46,14 @@ module.exports = {
             PollServerActions.vote(res.body.data)
         })
     },
+    // Custom Vote
+    customVote: function(_id, optionSel) {
+        request.post('api/customvote').send({ _id: _id, optionSel: optionSel }).end(function(err, res) {
+            if(err) throw err
+            //
+            PollServerActions.customVote(res.body.data)
+        })
+    },
     // Remove Poll
     removePoll: function(_id) {
         var self = this
