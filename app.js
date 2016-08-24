@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport')
 var Strategy = require('passport-twitter').Strategy
 var session = require('express-session')
-// var twitAuth = require('./config/auth').twitterAuth
+var twitAuth = require('./config/auth').twitterAuth
 var flash = require('connect-flash')
 
 // database stuff
@@ -72,7 +72,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // middleware used
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
