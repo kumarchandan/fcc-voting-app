@@ -12,32 +12,73 @@ var _polls = []
 var _myPolls = []
 var _voteMsg = null
 var _poll = []
+var _owner = null
 
 // All Polls
 function loadPolls(data) {
-    _polls = data
+    if(data) {
+        _polls = data
+    }
 }
-// User specific polls
+// My Polls
 function loadMyPolls(data) {
-    _myPolls = data
+    if(data) {
+        _myPolls = data
+    }
 }
-// Add New Poll
-function addPoll(data) {
-    _polls.push(data)
-    _myPolls.push(data)
-}
-//
-function voteMsg(data) {
-    _voteMsg = data
-}
-//
+// One Poll
 function loadPoll(data) {
-
-    _poll = data
+    if(data) {
+        _poll = data
+    }
+}
+// Vote
+function voteMsg(data) {
+    if(data) {
+        _voteMsg = data
+    }
+}
+//
+function createPoll(data) {
+    if(data) {
+        _polls.push(data)
+        _myPolls.push(data)
+    }
 }
 
+// Remove
+function removePoll(pollID) {
+    if(_polls && Array.isArray(_polls) && _polls.length !== 0) {
+        var index
+        for(var i = 0; i < _polls.length; i++) {
+            if(_polls[i]._id === pollID) {
+                index = i
+                break
+            }
+        }
+        if(index || index === 0) {
+            _polls.splice(index, 1)
+        }
+    } else {
+        _polls = []
+    }
+    // My Polls removal
+    if(_myPolls && Array.isArray(_myPolls) && _myPolls.length !== 0) {
+        var index
+        for(var i = 0; i < _myPolls.length; i++) {
+            if(_myPolls[i]._id === pollID) {
+                index = i
+                break
+            }
+        }
+        if(index || index === 0) {
+            _myPolls.splice(index, 1)
+        }
+    } else {
+        _myPolls = []
+    }
+}
 
-// PollStore Instance
 // Extend with EventEmitter.prototype to add event capabilities
 var PollStore = _.extend({}, EventEmitter.prototype, {
     //
@@ -59,8 +100,8 @@ var PollStore = _.extend({}, EventEmitter.prototype, {
     },
     //
     getPoll: function(_id) {
+        //
         if((_poll && _poll.length === 0) || _poll[0]._id !== _id) {
-            //PollAPI.getPoll(_id)
             PollAPI.getPoll(_id)
             return true
         } else {
@@ -87,29 +128,32 @@ AppDispatcher.register(function(payload) {
     var action = payload.action
     //
     switch (action.actionType) {
-        case PollConstants.GET_POLLS:
-            loadPolls(action.data)      // loadPolls
-            PollStore.emitChange()
-            break
-        case PollConstants.CREATE_POLL:
-            addPoll(action.data)        // addPoll
+        case PollConstants.GET_POLLS:   
+            loadPolls(action.data)          // Change All Polls
             PollStore.emitChange()
             break
         case PollConstants.GET_MY_POLLS:
-            loadMyPolls(action.data)    // loadMyPolls
+            loadMyPolls(action.data)        // Change My Polls
             PollStore.emitChange()
             break
-        case PollConstants.VOTE:
+        case PollConstants.GET_POLL:
+            loadPoll(action.data)           // Change One Poll
+            PollStore.emitChange()
+            break
+        case PollConstants.CREATE_POLL_RESPONSE:
+            createPoll(action.data)
+            PollStore.emitChange()
+            break
+        case PollConstants.VOTE_RESPONSE:
             voteMsg(action.data.msg)        // Vote Message
             if(action.data.poll) {
                 loadPoll(action.data.poll)
             }
             PollStore.emitChange()
             break
-        case PollConstants.GET_POLL:
-            loadPoll(action.data)
+        case PollConstants.REMOVE_RESPONSE:
+            removePoll(action.data)         // Remove - Change
             PollStore.emitChange()
-            break
         default:
             return true
     }

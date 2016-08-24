@@ -1,7 +1,7 @@
 // NewPoll.react.js : User can Create New Poll - Access Authenticated User Only
 
 var React = require('react')
-var PollAPI = require('../utils/PollAPI')
+var PollActions = require('../actions/PollActions')
 
 import { browserHistory } from 'react-router'
 
@@ -29,9 +29,10 @@ var NewPoll = React.createClass({
             title: title,
             options: options
         }
-        PollAPI.createPoll(poll)
+        //
+        PollActions.createPoll(poll)
         // Navigate to Home
-        this.props.history.push('/')
+        this.props.history.push('/')        // get new way of transition - this is deprecated
     },
     render: function() {
         //
@@ -46,7 +47,7 @@ var NewPoll = React.createClass({
                                 <input id="newTitle" ref='title' type="text" style={inpStyle} placeholder="Enter poll title..." />
                                 <br />
                                 <br />
-                                <textarea id="newOptions" ref='options' style={taStyle} placeholder='your options [comma seperated]' />
+                                <textarea id="newOptions" ref='options' style={taStyle} placeholder='Your options [comma seperated]' />
                                 <br />
                                 <br />
                                 <Button bsStyle="success" onClick={this.createPoll}>Submit</Button>

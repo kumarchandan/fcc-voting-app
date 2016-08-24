@@ -4,7 +4,7 @@ var React = require('react')
 var PollStore = require('../stores/PollStore')
 
 // Bootstrap elements
-import { ListGroup, ListGroupItem, Jumbotron, Grid, Row, Col, Thumbnail } from 'react-bootstrap'
+import { ListGroup, ListGroupItem, Jumbotron, Grid, Row, Col } from 'react-bootstrap'
 
 import { LinkContainer } from 'react-router-bootstrap'
 
@@ -15,9 +15,11 @@ var _key = null
 var List = React.createClass({
     //
     render: function() {
+        //
         var pollRow = []
-        if(this.props.polls && this.props.polls.length !== 0) {
-            this.props.polls.forEach(function(poll) {
+        var polls = this.props.polls
+        if(polls && Array.isArray(polls)) {
+            polls.forEach(function(poll) {
                 pollRow.push(
                     <LinkContainer to={'/polls/'+poll._id} key={poll._id}>
                         <ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>
@@ -40,7 +42,7 @@ var List = React.createClass({
 // get data from store
 function getState() {
     return {
-        polls: PollStore.getPolls()     // TODO - call PollStore-getPoll here
+        polls: PollStore.getPolls()
     }
 }
 

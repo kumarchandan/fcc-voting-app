@@ -31,8 +31,9 @@ function createPoll(req, res, next) {
         if(err) throw err
         //
         console.log('Poll Created', poll, numAffected)
+        //
         res.status(200).json({
-            data: newPoll
+            data: poll
         })
     })
 }
@@ -71,10 +72,8 @@ function vote(req, res, next) {
                                                
                                             })
                                         }
-                                        return null     // to suppress warning: http://bluebirdjs.com/docs/warning-explanations.html
                                     })
                             }
-                            return null
                         })
                 }
             })
@@ -108,10 +107,8 @@ function vote(req, res, next) {
                                                 }
                                             })
                                         }
-                                        return null
                                     })
                             }
-                            return null
                         })
                 }
             })
@@ -121,7 +118,27 @@ function vote(req, res, next) {
     }
 }
 
+// Remove Poll
+function removePoll(req, res, next) {
+    //
+    var _id = req.body._id
+    Poll.remove({ _id: _id })
+        .then(function(doc) {
+            if(doc) {
+                res.status(200).json({
+                    data: {
+                        msg: 'Poll removed successfully!'
+                    }
+                })
+            }
+        })
+        .catch(function(err) {
+            throw err
+        })
+}
+
 module.exports = {
     createPoll: createPoll,
-    vote: vote
+    vote: vote,
+    removePoll: removePoll
 }

@@ -13,7 +13,7 @@ var twitAuth = require('./config/auth').twitterAuth
 var flash = require('connect-flash')
 
 // database stuff
-var mongoURL = require('./config/database').mongoURL
+var mongoURL = require('./config/database').mongoURL || process.env.MONGOLAB_URI
 var mongoose = require('mongoose')
 mongoose.connect(mongoURL)
 var User = require('./models/user')
@@ -21,8 +21,8 @@ var User = require('./models/user')
 
 // Configure the twitte Strategy for use by passport
 passport.use(new Strategy({
-  consumerKey: twitAuth.consumerKey,
-  consumerSecret: twitAuth.consumerSecret,
+  consumerKey: twitAuth.consumerKey || process.env.TWEET_API_KEY,
+  consumerSecret: twitAuth.consumerSecret || process.env.TWEET_API_SEC,
   callbackURL: twitAuth.callbackURL
 },
 function(token, tokenSecret, profile, done) {

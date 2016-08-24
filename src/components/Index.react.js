@@ -17,9 +17,8 @@ function getState() {
 
 // Navigation bar
 var NavigationBar = React.createClass({
-
     //
-    _onChange: function() {
+    _onChange: function() {         // Controller-View : Listenes for data change and setState
         this.setState(getState())
     },
     //

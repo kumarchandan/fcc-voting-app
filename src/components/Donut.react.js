@@ -13,10 +13,7 @@ var name = function(d) {
     return d.text
 }
 
-// chart series,
-// field: is what field your data want to be selected
-// name: the name of the field that display in legend
-// color: what color is the line
+var showLegend = true
 var innerRadius = 65
 
 var Donut = React.createClass({
@@ -38,7 +35,7 @@ var Donut = React.createClass({
     //
     render: function() {
         return (
-            <PieChart data={this.props.options} width={width} height={height} chartSeries={this.state.series} name={name} value={value} innerRadius={innerRadius} />
+            <PieChart data={this.props.options} width={width} height={height} chartSeries={this.state.series} name={name} value={value} innerRadius={innerRadius} showLegend= {showLegend} />
         )
     }
 })

@@ -1,6 +1,6 @@
 // PollAPI.js
 
-var PollActions = require('../actions/PollActions')
+var PollServerActions = require('../actions/PollServerActions')
 var request = require('superagent')
 
 // Utility to load data first time
@@ -14,12 +14,12 @@ module.exports = {
             PollActions.getPolls(res.body.data)
         })
     },
-    // Create New Poll
+    // Create Poll
     createPoll: function(poll) {
         request.post('api/create').send(poll).end(function(err, res) {
             if(err) throw err
             //
-            PollActions.createPoll(res.body.data)
+            PollServerActions.createPoll(res.body.data)
         })
     },
     // User Specific Polls
@@ -43,7 +43,20 @@ module.exports = {
         request.post('api/vote').send({ _id: _id, optionSel: optionSel }).end(function(err, res) {
             if(err) throw err
             //
-            PollActions.vote(res.body.data)
+            PollServerActions.vote(res.body.data)
+        })
+    },
+    // Remove Poll
+    removePoll: function(_id) {
+        var self = this
+        self._id = _id
+        request.post('api/remove').send({ _id: _id }).end(function(err, res) {
+            if(err) throw err
+            // Update '/'
+            PollServerActions.removePoll(self._id)
         })
     }
 }
+
+// Circular dependency - so PollActions lies here ;)
+var PollActions = require('../actions/PollActions')

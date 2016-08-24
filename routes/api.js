@@ -15,6 +15,7 @@ router.get('/poll', query.getPoll)
 // POST
 router.post('/create', update.createPoll)
 router.post('/vote', update.vote)
+router.post('/remove', update.removePoll)
 
 // CHECK
 router.get('/auth', check.isAuthenticated)

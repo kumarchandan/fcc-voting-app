@@ -1,5 +1,6 @@
 // AuthStore.js
 
+var AuthAPI = require('../utils/AuthAPI')
 var AppDispatcher = require('../dispatcher/AppDispatcher')
 var AuthConstants = require('../constants/AuthConstants')
 var EventEmitter = require('events').EventEmitter

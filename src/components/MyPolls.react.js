@@ -12,8 +12,9 @@ var List = React.createClass({
     //
     render: function() {    
         var row = []
-        if(this.props.myPolls && this.props.myPolls.length !== 0) {
-            this.props.myPolls.forEach(function(poll) {
+        var myPolls = this.props.myPolls
+        if(myPolls && Array.isArray(myPolls)) {
+            myPolls.forEach(function(poll) {
                 row.push(
                     <LinkContainer to={'/polls/'+poll._id} key={poll._id}>
                         <ListGroupItem header={poll.title} key={poll._id}></ListGroupItem>

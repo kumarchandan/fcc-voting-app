@@ -1,9 +1,6 @@
 // manager/check.js
 
 //
-var Poll = require('../models/poll')
-
-//
 function isAuthenticated(req, res, next) {
   // if user is authenticated in session carry on
   if(req.isAuthenticated()) {

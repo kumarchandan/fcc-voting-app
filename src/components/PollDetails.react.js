@@ -1,9 +1,10 @@
 // PollDetails.react.js : Details and Results of a single Poll - Access All
 
 var React = require('react')
+
+var AuthStore = require('../stores/AuthStore')
 var PollStore = require('../stores/PollStore')
 var PollActions = require('../actions/PollActions')
-var PollAPI = require('../utils/PollAPI')
 
 var Donut = require('./Donut.react')
 
@@ -13,7 +14,8 @@ import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from
 function getPollDetails(_id) {
     return {
         poll: PollStore.getPoll(_id),
-        message: PollStore.getVoteMsg()
+        message: PollStore.getVoteMsg(),
+        owner: AuthStore.getAuthData()      // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
     }
 }
 
@@ -44,7 +46,7 @@ var PollDetails = React.createClass({
         var selectElem = document.getElementById('selectElem')
         var optionSel = selectElem.options[selectElem.selectedIndex].value
         // Vote
-        PollAPI.vote(this.props.params.pollID, optionSel)
+        PollActions.vote(this.props.params.pollID, optionSel)
     },
     //
     getInitialState: function() {
@@ -53,16 +55,40 @@ var PollDetails = React.createClass({
     //
     componentDidMount: function() {
         PollStore.addChangeListener(this._onChange)
+        AuthStore.addChangeListener(this._onChange)
     },
     //
     componentWillUnmount: function() {
         PollStore.removeChangeListener(this._onChange)
+        AuthStore.removeChangeListener(this._onChange)
     },
     //
     handleAlertDismiss: function() {
         this.setState({
             message: null
         })
+    },
+    //
+    checkOwner: function() {
+        var owner = this.state.owner
+        var poll = this.state.poll[0]
+        if(!owner) { // no one's logged in
+            return false
+        } else {
+            var userID = owner._id
+            var pollOwnerID = poll.ownerUserid
+            if(userID === pollOwnerID) {
+                return true
+            } else {
+                return false
+            }
+        }
+    },
+    //
+    removePoll: function() {
+        var _id = this.state.poll[0]._id
+        PollActions.removePoll(_id)
+        this.props.history.push('/')
     },
     //
     render: function() {
@@ -91,6 +117,12 @@ var PollDetails = React.createClass({
                         </Col>
                         <Col lg={6}>
                             <Donut options={poll.options} />
+                            { this.checkOwner() ?
+                                <Button bsStyle='danger' onClick={this.removePoll} block>Remove Poll</Button>
+                            :
+                                null
+                            }
+                            
                         </Col>
                     </Row>
                 </Grid>
