@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport')
 var Strategy = require('passport-twitter').Strategy
 var session = require('express-session')
-var twitAuth = require('./config/auth').twitterAuth
+// var twitAuth = require('./config/auth').twitterAuth
 var flash = require('connect-flash')
 
 // database stuff
