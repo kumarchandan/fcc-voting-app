@@ -51700,6 +51700,10 @@
 	    displayName: 'NewPoll',
 	
 	    //
+	    contextTypes: {
+	        router: React.PropTypes.object
+	    },
+	    //
 	    createPoll: function createPoll() {
 	        //
 	        var title = this.refs.title.value;
@@ -51712,7 +51716,8 @@
 	        //
 	        PollActions.createPoll(poll);
 	        // Navigate to Home
-	        this.props.history.push('/'); // get new way of transition - this is deprecated
+	        // this.props.history.push('/')        // get new way of transition - this is deprecated
+	        this.context.router.push('/');
 	    },
 	    render: function render() {
 	        //
@@ -51931,6 +51936,10 @@
 	    displayName: 'PollDetails',
 	
 	    //
+	    contextTypes: {
+	        router: React.PropTypes.object
+	    },
+	    //
 	    _onChange: function _onChange() {
 	        this.setState(getPollDetails(this.props.params.pollID));
 	    },
@@ -51982,7 +51991,8 @@
 	    removePoll: function removePoll() {
 	        var _id = this.state.poll[0]._id;
 	        PollActions.removePoll(_id);
-	        this.props.history.push('/');
+	        //
+	        this.context.router.push('/');
 	    },
 	    //
 	    render: function render() {

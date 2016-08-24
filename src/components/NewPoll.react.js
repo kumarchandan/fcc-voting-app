@@ -20,6 +20,10 @@ var inpStyle = {
 //
 var NewPoll = React.createClass({
     //
+    contextTypes: {
+        router: React.PropTypes.object
+    },
+    //
     createPoll: function() {
         //
         var title = this.refs.title.value
@@ -32,7 +36,8 @@ var NewPoll = React.createClass({
         //
         PollActions.createPoll(poll)
         // Navigate to Home
-        this.props.history.push('/')        // get new way of transition - this is deprecated
+        // this.props.history.push('/')        // get new way of transition - this is deprecated
+        this.context.router.push('/')
     },
     render: function() {
         //

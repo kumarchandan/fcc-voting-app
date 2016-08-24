@@ -38,6 +38,10 @@ var SelectOptions = React.createClass({
 //
 var PollDetails = React.createClass({
     //
+    contextTypes: {
+        router: React.PropTypes.object
+    },
+    //
     _onChange: function() {
         this.setState(getPollDetails(this.props.params.pollID))
     },
@@ -88,7 +92,8 @@ var PollDetails = React.createClass({
     removePoll: function() {
         var _id = this.state.poll[0]._id
         PollActions.removePoll(_id)
-        this.props.history.push('/')
+        //
+        this.context.router.push('/')
     },
     //
     render: function() {
