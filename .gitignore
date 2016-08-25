@@ -36,7 +36,7 @@
 ehthumbs.db
 Thumbs.db
 /config
-*.env
+/*.env
 /node_modules
 npm-debug.log
 /bower_components
