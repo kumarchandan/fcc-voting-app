@@ -51930,18 +51930,7 @@
 	var AuthStore = __webpack_require__(/*! ../stores/AuthStore */ 490);
 	var PollStore = __webpack_require__(/*! ../stores/PollStore */ 506);
 	var PollActions = __webpack_require__(/*! ../actions/PollActions */ 510);
-	
-	var Donut = __webpack_require__(/*! ./Donut.react */ 514);
-	
-	//
-	function getPollDetails(_id) {
-	    return {
-	        custom: false,
-	        poll: PollStore.getPoll(_id),
-	        message: PollStore.getVoteMsg(),
-	        owner: AuthStore.getAuthData() // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
-	    };
-	}
+	var PieChart = __webpack_require__(/*! react-d3-basic */ 515).PieChart;
 	
 	// User chooses Custom option
 	function customOptionSelected(event) {
@@ -51952,7 +51941,7 @@
 	    }
 	}
 	
-	//
+	// Select
 	var SelectOptions = React.createClass({
 	    displayName: 'SelectOptions',
 	
@@ -51966,21 +51955,67 @@
 	                option.text
 	            ));
 	        });
-	        // For Customized Option
-	        row.push(React.createElement(
-	            'option',
-	            { key: 'custom', value: 'custom' },
-	            'I\'d like a custom option'
-	        ));
+	        // Customized Option Only If User is logged in
+	        if (this.props.user) {
+	            row.push(React.createElement(
+	                'option',
+	                { key: 'custom', value: 'custom' },
+	                'I\'d like a custom option'
+	            ));
+	        }
 	        return React.createElement(
 	            _reactBootstrap.FormControl,
-	            { componentClass: 'select', id: 'selectElem', onChange: customOptionSelected.bind(this.props.refer), placeholder: 'Choose an option...' },
+	            { componentClass: 'select', id: 'selectElem', onChange: customOptionSelected.bind(this.props.self), placeholder: 'Choose an option...' },
 	            row
 	        );
 	    }
 	});
 	
+	// Donut
+	var Donut = React.createClass({
+	    displayName: 'Donut',
+	
+	    //
+	    getInitialState: function getInitialState() {
+	        return {
+	            width: 700,
+	            height: 400,
+	            innerRadius: 65,
+	            series: this.chartSeries()
+	        };
+	    },
+	    value: function value(d) {
+	        return +d.vote;
+	    },
+	    name: function name(d) {
+	        return d.text;
+	    },
+	    chartSeries: function chartSeries() {
+	        var series = this.props.options.map(function (option) {
+	            return {
+	                field: option.text,
+	                name: option.text
+	            };
+	        });
+	        return series;
+	    },
+	    //
+	    render: function render() {
+	        return React.createElement(PieChart, { data: this.props.options, width: this.state.width, height: this.state.height, chartSeries: this.state.series, name: this.name, value: this.value, innerRadius: this.innerRadius });
+	    }
+	});
+	
 	//
+	function getPollDetails(_id) {
+	    return {
+	        custom: false,
+	        poll: PollStore.getPoll(_id),
+	        message: PollStore.getVoteMsg(),
+	        user: AuthStore.getAuthData() // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
+	    };
+	}
+	
+	// Poll
 	var PollDetails = React.createClass({
 	    displayName: 'PollDetails',
 	
@@ -52042,13 +52077,13 @@
 	    },
 	    //
 	    checkOwner: function checkOwner() {
-	        var owner = this.state.owner;
+	        var user = this.state.user;
 	        var poll = this.state.poll[0];
-	        if (!owner) {
+	        if (!user) {
 	            // no one's logged in
 	            return false;
 	        } else {
-	            var userID = owner._id;
+	            var userID = user._id;
 	            var pollOwnerID = poll.ownerUserid;
 	            if (userID === pollOwnerID) {
 	                return true;
@@ -52103,7 +52138,7 @@
 	                            React.createElement(
 	                                'form',
 	                                null,
-	                                React.createElement(SelectOptions, { options: poll.options, refer: this }),
+	                                React.createElement(SelectOptions, { options: poll.options, user: this.state.user, self: this }),
 	                                React.createElement('br', null),
 	                                this.state.custom ? React.createElement(
 	                                    'div',
@@ -52145,59 +52180,7 @@
 	module.exports = PollDetails;
 
 /***/ },
-/* 514 */
-/*!***************************************!*\
-  !*** ./src/components/Donut.react.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// Donut.react.js
-	
-	var React = __webpack_require__(/*! react */ 3);
-	var PieChart = __webpack_require__(/*! react-d3-basic */ 515).PieChart;
-	
-	//
-	var width = 700;
-	var height = 400;
-	var value = function value(d) {
-	    return +d.vote;
-	};
-	var name = function name(d) {
-	    return d.text;
-	};
-	
-	var showLegend = true;
-	var innerRadius = 65;
-	
-	var Donut = React.createClass({
-	    displayName: 'Donut',
-	
-	    //
-	    getInitialState: function getInitialState() {
-	        return {
-	            series: this.chartSeries()
-	        };
-	    },
-	    chartSeries: function chartSeries() {
-	        var series = this.props.options.map(function (option) {
-	            return {
-	                field: option.text,
-	                name: option.text
-	            };
-	        });
-	        return series;
-	    },
-	    //
-	    render: function render() {
-	        return React.createElement(PieChart, { data: this.props.options, width: width, height: height, chartSeries: this.state.series, name: name, value: value, innerRadius: innerRadius, showLegend: showLegend });
-	    }
-	});
-	
-	module.exports = Donut;
-
-/***/ },
+/* 514 */,
 /* 515 */
 /*!***************************************!*\
   !*** ./~/react-d3-basic/lib/index.js ***!

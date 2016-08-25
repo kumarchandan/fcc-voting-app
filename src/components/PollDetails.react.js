@@ -5,20 +5,9 @@ var React = require('react')
 var AuthStore = require('../stores/AuthStore')
 var PollStore = require('../stores/PollStore')
 var PollActions = require('../actions/PollActions')
-
-var Donut = require('./Donut.react')
+var PieChart = require('react-d3-basic').PieChart
 
 import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from 'react-bootstrap'
-
-//
-function getPollDetails(_id) {
-    return {
-        custom: false,
-        poll: PollStore.getPoll(_id),
-        message: PollStore.getVoteMsg(),
-        owner: AuthStore.getAuthData()      // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
-    }
-}
 
 // User chooses Custom option
 function customOptionSelected(event) {
@@ -29,7 +18,7 @@ function customOptionSelected(event) {
     }
 }
 
-//
+// Select
 var SelectOptions = React.createClass({
     //
     render: function() {
@@ -37,15 +26,61 @@ var SelectOptions = React.createClass({
         this.props.options.forEach(function(option) {
             row.push(<option key={option._id} value={option.text}>{option.text}</option>)
         })
-        // For Customized Option
-        row.push(<option key='custom' value='custom'>I'd like a custom option</option>)
+        // Customized Option Only If User is logged in
+        if(this.props.user) {
+            row.push(<option key='custom' value='custom'>I'd like a custom option</option>)
+        }
         return (
-            <FormControl componentClass="select" id='selectElem' onChange={customOptionSelected.bind(this.props.refer)} placeholder="Choose an option...">{row}</FormControl>
+            <FormControl componentClass="select" id='selectElem' onChange={customOptionSelected.bind(this.props.self)} placeholder="Choose an option...">{row}</FormControl>
+        )
+    }
+})
+
+// Donut
+var Donut = React.createClass({
+    //
+    getInitialState: function() {
+        return {
+            width: 700,
+            height: 400,
+            innerRadius: 65,
+            series: this.chartSeries()
+        }
+    },
+    value: function(d) {
+        return +d.vote
+    },
+    name: function(d) {
+        return d.text
+    },
+    chartSeries: function() {
+        var series = this.props.options.map(function(option) {
+            return {
+                field: option.text,
+                name: option.text
+            }
+        })
+        return series
+    },
+    //
+    render: function() {
+        return (
+            <PieChart data={this.props.options} width={this.state.width} height={this.state.height} chartSeries={this.state.series} name={this.name} value={this.value} innerRadius={this.innerRadius} />
         )
     }
 })
 
 //
+function getPollDetails(_id) {
+    return {
+        custom: false,
+        poll: PollStore.getPoll(_id),
+        message: PollStore.getVoteMsg(),
+        user: AuthStore.getAuthData()      // false-> no logged in user, user -> _id : check with existing poll - ownerUserid
+    }
+}
+
+// Poll
 var PollDetails = React.createClass({
     //
     contextTypes: {
@@ -107,12 +142,12 @@ var PollDetails = React.createClass({
     },
     //
     checkOwner: function() {
-        var owner = this.state.owner
+        var user = this.state.user
         var poll = this.state.poll[0]
-        if(!owner) { // no one's logged in
+        if(!user) { // no one's logged in
             return false
         } else {
-            var userID = owner._id
+            var userID = user._id
             var pollOwnerID = poll.ownerUserid
             if(userID === pollOwnerID) {
                 return true
@@ -147,7 +182,7 @@ var PollDetails = React.createClass({
                                 <br />
                                 <h3>I would like to go for...</h3>
                                 <form>
-                                    <SelectOptions options={poll.options} refer={this} />
+                                    <SelectOptions options={poll.options} user={this.state.user} self={this} />
                                     <br />
                                     {this.state.custom ?
                                         <div>
