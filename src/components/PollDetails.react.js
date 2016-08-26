@@ -5,7 +5,7 @@ var React = require('react')
 var AuthStore = require('../stores/AuthStore')
 var PollStore = require('../stores/PollStore')
 var PollActions = require('../actions/PollActions')
-var PieChart = require('react-d3-basic').PieChart
+var PieTooltip = require('react-d3-tooltip').PieTooltip
 
 import { Jumbotron, Grid, Row, Col, Thumbnail, Button, FormControl, Alert } from 'react-bootstrap'
 
@@ -39,14 +39,14 @@ var SelectOptions = React.createClass({
 // Donut
 var Donut = React.createClass({
     //
-    getInitialState: function() {
-        return {
-            width: 700,
-            height: 400,
-            innerRadius: 65,
-            series: this.chartSeries()
-        }
+    config: {
+        width: 700,
+        height: 450,
+        margins: { top: 50, right: 50, left: 50, bottom: 20},
+        innerRadius: 65,
+        pieSort: d3.descending
     },
+    //
     value: function(d) {
         return +d.vote
     },
@@ -65,7 +65,10 @@ var Donut = React.createClass({
     //
     render: function() {
         return (
-            <PieChart data={this.props.options} width={this.state.width} height={this.state.height} chartSeries={this.state.series} name={this.name} value={this.value} innerRadius={this.innerRadius} />
+            <PieTooltip data={this.props.options} width={this.config.width} height={this.config.height} 
+                chartSeries={this.chartSeries()} name={this.name} value={this.value} innerRadius={this.config.innerRadius} 
+                margins={this.config.margins} pieSort={this.config.pieSort}
+            />
         )
     }
 })
@@ -191,7 +194,12 @@ var PollDetails = React.createClass({
                                         </div>
                                         : null}
                                     <br />
-                                    <Button type='button' bsStyle='success' onClick={this._handleSubmit}>Submit</Button>
+                                    <Button type='button' bsStyle='success' onClick={this._handleSubmit} block>Submit</Button>
+                                    <br />
+                                    <br />
+                                    <Button type='button' bsStyle='info' block>
+                                    <a href={'https://twitter.com/intent/tweet?hashtags=VoteFor '+poll.title+'&text='+ encodeURIComponent('https://kchan-voting-app.herokuapp.com/#/polls/'+poll._id)} target='_blank'>
+                                    Share on Twitter</a></Button>
                                 </form>
                             </Jumbotron>
                         </Col>
